@@ -4,16 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 
 interface TreeIdInputProps {
-  onSearch: (treeId: string) => void;
+  onSearch: (searchValue: string, searchType: "tree-id" | "internal-id") => void;
 }
 
 export const TreeIdInput = ({ onSearch }: TreeIdInputProps) => {
-  const [treeId, setTreeId] = useState("8G4P4VXP+GR5V");
+  const [searchValue, setSearchValue] = useState("8G4P4VXP+GR5V");
+
+  // Detect search type: if it contains a '+', it's a tree-id, otherwise it's an internal-id
+  const detectSearchType = (value: string): "tree-id" | "internal-id" => {
+    return value.includes("+") ? "tree-id" : "internal-id";
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (treeId.trim()) {
-      onSearch(treeId.trim());
+    if (searchValue.trim()) {
+      const trimmedValue = searchValue.trim();
+      const searchType = detectSearchType(trimmedValue);
+      onSearch(trimmedValue, searchType);
     }
   };
 
@@ -22,9 +29,9 @@ export const TreeIdInput = ({ onSearch }: TreeIdInputProps) => {
       <div className="flex gap-2">
         <Input
           type="text"
-          value={treeId}
-          onChange={(e) => setTreeId(e.target.value)}
-          placeholder="הזן מזהה עץ"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          placeholder="הזן מזהה עץ או מספר פנימי"
           className="flex-1 text-right"
         />
         <Button type="submit" size="icon" className="flex-shrink-0">
@@ -32,7 +39,7 @@ export const TreeIdInput = ({ onSearch }: TreeIdInputProps) => {
         </Button>
       </div>
       <p className="text-sm text-muted-foreground text-right">
-        דוגמה: 8G4P4VXP+GR5V
+        דוגמה למזהה עץ: 8G4P4VXP+GR5V | דוגמה למספר פנימי: 3913
       </p>
     </form>
   );

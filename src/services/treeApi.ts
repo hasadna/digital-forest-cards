@@ -24,9 +24,15 @@ export interface TreeRow {
   "meta-date"?: string;
 }
 
-export const fetchTreeData = async (treeId: string): Promise<TreeRow[]> => {
-  // Create the SQL query
-  const sql = `SELECT * FROM trees_processed WHERE "meta-tree-id" = '${treeId}'`;
+export const fetchTreeData = async (
+  searchValue: string,
+  searchType: "tree-id" | "internal-id" = "tree-id"
+): Promise<TreeRow[]> => {
+  // Create the SQL query based on search type
+  const sql =
+    searchType === "tree-id"
+      ? `SELECT * FROM trees_processed WHERE "meta-tree-id" = '${searchValue}'`
+      : `SELECT * FROM trees_processed WHERE "meta-internal-id" = '${searchValue}'`;
   
   // Encode the query in base64
   const encodedQuery = btoa(sql);
@@ -53,6 +59,25 @@ export const fetchTreeData = async (treeId: string): Promise<TreeRow[]> => {
     console.error("Error fetching tree data:", error);
     throw error;
   }
+};
+
+// Group tree rows by meta-tree-id (to handle multiple municipalities)
+export const groupByTreeId = (rows: TreeRow[]) => {
+  const grouped = new Map<string, TreeRow[]>();
+  
+  for (const row of rows) {
+    const treeId = row["meta-tree-id"];
+    if (!grouped.has(treeId)) {
+      grouped.set(treeId, []);
+    }
+    grouped.get(treeId)!.push(row);
+  }
+  
+  return Array.from(grouped.entries()).map(([treeId, rows]) => ({
+    treeId,
+    rows,
+    municipality: rows[0]["muni_name"] || "לא ידוע",
+  }));
 };
 
 export const transformTreeData = (apiDataRows: TreeRow[]) => {

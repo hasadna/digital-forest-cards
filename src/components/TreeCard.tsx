@@ -109,19 +109,19 @@ export const TreeCard = ({ data }: TreeCardProps) => {
           </>
         )}
 
-        {/* Street View Section */}
-        {data.coordinates && (
+        {/* Map/Street View Section */}
+        {data.id && (
           <>
             <Separator />
             <div className="space-y-3">
-              <h3 className="text-base font-semibold text-foreground">תצוגת רחוב (עדכניות לפי מפות Google)</h3>
+              <h3 className="text-base font-semibold text-foreground">מיקום במפה (לחץ על הבובה לתצוגת רחוב)</h3>
               <iframe
                 width="100%"
                 height="340"
                 loading="lazy"
                 allowFullScreen
                 style={{ border: 0, borderRadius: '0.5rem' }}
-                src={`https://www.google.com/maps/embed/v1/streetview?location=${data.coordinates}&key=${googleMapsKey}`}
+                src={`https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(data.id)}&key=${googleMapsKey}&zoom=18&maptype=satellite`}
               />
             </div>
           </>

@@ -1,28 +1,74 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { TreeCard } from "@/components/TreeCard";
 import { TreeIdInput } from "@/components/TreeIdInput";
+import { MunicipalitySelector } from "@/components/MunicipalitySelector";
 import { TreePine, Loader2, AlertCircle } from "lucide-react";
-import { fetchTreeData, transformTreeData } from "@/services/treeApi";
+import { fetchTreeData, transformTreeData, groupByTreeId } from "@/services/treeApi";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Index = () => {
-  const [treeId, setTreeId] = useState("8G4P4VXP+GR5V");
+  const [searchValue, setSearchValue] = useState("8G4P4VXP+GR5V");
+  const [searchType, setSearchType] = useState<"tree-id" | "internal-id">("tree-id");
+  const [selectedTreeId, setSelectedTreeId] = useState<string | null>(null);
+  const [finalTreeId, setFinalTreeId] = useState<string | null>(null);
 
-  // Fetch tree data using React Query
-  const { data: apiData, isLoading, error, refetch } = useQuery({
-    queryKey: ["tree", treeId],
-    queryFn: () => fetchTreeData(treeId),
-    enabled: !!treeId,
+  // First query: Fetch initial search results (by tree-id or internal-id)
+  const { data: initialData, isLoading: isLoadingInitial, error: errorInitial } = useQuery({
+    queryKey: ["tree-search", searchValue, searchType],
+    queryFn: () => fetchTreeData(searchValue, searchType),
+    enabled: !!searchValue,
+    retry: 1,
+  });
+
+  // Group results by tree ID (for internal ID searches that return multiple municipalities)
+  const groupedResults = initialData ? groupByTreeId(initialData) : [];
+  
+  // Determine if we need to show municipality selector
+  const showMultipleOptions = searchType === "internal-id" && groupedResults.length > 1 && !selectedTreeId;
+
+  // When search type is tree-id, or when we have a single result from internal-id search,
+  // or when user has selected a municipality, set the final tree ID
+  useEffect(() => {
+    if (searchType === "tree-id" && initialData && initialData.length > 0) {
+      // Direct tree-id search
+      setFinalTreeId(searchValue);
+    } else if (searchType === "internal-id" && selectedTreeId) {
+      // User selected from multiple municipalities
+      setFinalTreeId(selectedTreeId);
+    } else if (searchType === "internal-id" && groupedResults.length === 1) {
+      // Single municipality result from internal-id search
+      setFinalTreeId(groupedResults[0].treeId);
+    } else if (showMultipleOptions) {
+      // Waiting for user to select municipality
+      setFinalTreeId(null);
+    }
+  }, [searchType, searchValue, selectedTreeId, initialData, groupedResults.length, showMultipleOptions]);
+
+  // Second query: Fetch all data sources for the final tree ID (by plus code)
+  const { data: finalData, isLoading: isLoadingFinal } = useQuery({
+    queryKey: ["tree-final", finalTreeId],
+    queryFn: () => fetchTreeData(finalTreeId!, "tree-id"),
+    enabled: !!finalTreeId,
     retry: 1,
   });
 
   // Transform API data to component format
-  const treeData = transformTreeData(apiData ?? []);
+  const treeData = finalData ? transformTreeData(finalData) : null;
+  
+  // Loading state: show loading if either query is loading
+  const isLoading = isLoadingInitial || (!!finalTreeId && isLoadingFinal);
+  const error = errorInitial;
 
-  const handleSearch = (newTreeId: string) => {
-    setTreeId(newTreeId);
-    // React Query will automatically refetch when treeId changes
+  const handleSearch = (newSearchValue: string, newSearchType: "tree-id" | "internal-id") => {
+    setSearchValue(newSearchValue);
+    setSearchType(newSearchType);
+    setSelectedTreeId(null); // Reset selection when doing a new search
+    setFinalTreeId(null); // Reset final tree ID
+  };
+
+  const handleMunicipalitySelect = (treeId: string) => {
+    setSelectedTreeId(treeId);
   };
 
   return (
@@ -68,14 +114,25 @@ const Index = () => {
         )}
 
         {/* No Data Found */}
-        {!isLoading && !error && !treeData && (
+        {!isLoading && !error && !showMultipleOptions && !treeData && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertTitle className="text-right">לא נמצאו תוצאות</AlertTitle>
             <AlertDescription className="text-right">
-              לא נמצא עץ עם המזהה {treeId}. אנא בדוק את המזהה ונסה שוב.
+              לא נמצא עץ עם המזהה {searchValue}. אנא בדוק את המזהה ונסה שוב.
             </AlertDescription>
           </Alert>
+        )}
+
+        {/* Municipality Selector (when multiple results from different municipalities) */}
+        {!isLoading && showMultipleOptions && (
+          <MunicipalitySelector
+            options={groupedResults.map((g) => ({
+              treeId: g.treeId,
+              municipality: g.municipality,
+            }))}
+            onSelect={handleMunicipalitySelect}
+          />
         )}
 
         {/* Tree Card */}
