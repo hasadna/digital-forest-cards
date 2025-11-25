@@ -6,16 +6,26 @@ import { TreePine } from "lucide-react";
 const Index = () => {
   const [treeId, setTreeId] = useState("8G4P4VXP+GR5V");
 
-  // Mock data - in real app, this would be fetched from the API
+  // Mock data based on the original tree data from Digital Forest
   const mockTreeData = {
     id: treeId,
-    species: "אקליפטוס",
-    trunkDiameter: 45,
-    height: 12,
-    canopyArea: 28,
-    age: 25,
-    location: "הוד השרון, רחוב הבנים 12",
-    environment: "רחוב",
+    species: "מייש דרומי",
+    trunkDiameter: 17.0,
+    height: 5.0,
+    canopyArea: 47.7,
+    crownDiameter: 7.0,
+    ageEstimated: true,
+    municipality: "הוד השרון",
+    street: "שלמה בן יוסף",
+    parcel: "6442/410",
+    coordinates: "32.14877, 34.8871",
+    treeSpace: "מדרכה",
+    internalIds: ["3913", "canopy-1140206"],
+    photoUrl: "https://s3.eu-west-2.wasabisys.com/opentreebase-public/source/hod-hasharon/photos/3913.jpg",
+    dataSources: [
+      { name: "מיפוי חופות עצים", date: "2023-02-06" },
+      { name: "סקר עצים הוד השרון", date: "2023-12-01" }
+    ],
     status: "identified" as const,
   };
 

@@ -1,7 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { TreePine, Ruler, Calendar, MapPin, Info } from "lucide-react";
+import { TreePine, Ruler, Calendar, MapPin, Info, Hash } from "lucide-react";
+
+interface DataSource {
+  name: string;
+  date: string;
+}
 
 interface TreeData {
   id: string;
@@ -9,9 +14,19 @@ interface TreeData {
   trunkDiameter?: number;
   height?: number;
   canopyArea?: number;
+  crownDiameter?: number;
   age?: number;
+  ageEstimated?: boolean;
   location?: string;
+  municipality?: string;
+  street?: string;
+  parcel?: string;
+  coordinates?: string;
+  treeSpace?: string;
   environment?: string;
+  internalIds?: string[];
+  photoUrl?: string;
+  dataSources?: DataSource[];
   status: "identified" | "suspected";
 }
 
@@ -20,13 +35,15 @@ interface TreeCardProps {
 }
 
 export const TreeCard = ({ data }: TreeCardProps) => {
+  const googleMapsKey = "AIzaSyAW0_GwE7WPDox5RZnUMkESHGiSe5siWdQ";
+  
   return (
     <Card className="w-full shadow-lg border-primary/20" dir="rtl">
       <CardHeader className="bg-accent pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-2xl flex items-center gap-2 text-accent-foreground">
             <TreePine className="h-6 w-6 text-primary" />
-            <span>פרטי העץ</span>
+            <span>מזעץ: {data.id}</span>
           </CardTitle>
           <Badge 
             variant={data.status === "identified" ? "default" : "secondary"}
@@ -35,90 +52,158 @@ export const TreeCard = ({ data }: TreeCardProps) => {
             {data.status === "identified" ? "עץ מזוהה" : "חשד לעץ"}
           </Badge>
         </div>
-        <p className="text-sm text-muted-foreground mt-2">
-          מזהה: {data.id}
-        </p>
       </CardHeader>
 
-      <CardContent className="pt-6 space-y-4">
-        {data.species && (
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-muted-foreground">מין העץ</p>
-              <p className="text-lg font-semibold text-foreground">{data.species}</p>
+      <CardContent className="pt-6 space-y-6">
+        {/* Main Info Section */}
+        <div className="space-y-3">
+          {data.species && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">מין</span>
+              <span className="text-base font-medium text-foreground">{data.species}</span>
             </div>
-          </div>
-        )}
+          )}
+          
+          {data.coordinates && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">נ.צ</span>
+              <span className="text-base font-medium text-foreground ltr">{data.coordinates}</span>
+            </div>
+          )}
+          
+          {data.municipality && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">רשות מקומית</span>
+              <span className="text-base font-medium text-foreground">{data.municipality}</span>
+            </div>
+          )}
+          
+          {data.street && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">רחוב</span>
+              <span className="text-base font-medium text-foreground">{data.street}</span>
+            </div>
+          )}
+          
+          {data.parcel && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">גוש/חלקה</span>
+              <span className="text-base font-medium text-foreground ltr">{data.parcel}</span>
+            </div>
+          )}
+        </div>
 
-        {data.location && (
+        {/* Data Sources Section */}
+        {data.dataSources && data.dataSources.length > 0 && (
           <>
             <Separator />
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground">מיקום</p>
-                <p className="text-base text-foreground">{data.location}</p>
-              </div>
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold text-foreground">רשימת מקורות המידע</h3>
+              {data.dataSources.map((source, idx) => (
+                <div key={idx} className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">{source.name}</span>
+                  <span className="text-sm text-foreground">{source.date}</span>
+                </div>
+              ))}
             </div>
           </>
         )}
 
-        {data.environment && (
+        {/* Street View Section */}
+        {data.coordinates && (
           <>
             <Separator />
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground">סביבה</p>
-                <p className="text-base text-foreground">{data.environment}</p>
-              </div>
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold text-foreground">תצוגת רחוב (עדכניות לפי מפות Google)</h3>
+              <iframe
+                width="100%"
+                height="340"
+                loading="lazy"
+                allowFullScreen
+                style={{ border: 0, borderRadius: '0.5rem' }}
+                src={`https://www.google.com/maps/embed/v1/streetview?location=${data.coordinates}&key=${googleMapsKey}`}
+              />
             </div>
           </>
         )}
 
+        {/* Tree Photo */}
+        {data.photoUrl && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <h3 className="text-base font-semibold text-foreground">תמונות כלליות</h3>
+              <img 
+                src={data.photoUrl} 
+                alt="תמונת העץ"
+                className="w-full rounded-lg shadow-md"
+                loading="lazy"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Extra Info Section */}
         <Separator />
-
-        <div className="grid grid-cols-2 gap-4">
-          {data.trunkDiameter !== undefined && (
-            <div className="flex flex-col gap-2 p-3 rounded-lg bg-accent">
-              <div className="flex items-center gap-2 text-accent-foreground">
-                <Ruler className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">קוטר גזע</span>
+        <div className="space-y-4">
+          <h3 className="text-base font-semibold text-foreground">מידע נוסף</h3>
+          
+          {data.internalIds && data.internalIds.length > 0 && (
+            <div className="space-y-2">
+              <span className="text-sm text-muted-foreground">מזהה פנימי</span>
+              <div className="flex flex-wrap gap-2">
+                {data.internalIds.map((id, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs">
+                    {id}
+                  </Badge>
+                ))}
               </div>
-              <p className="text-xl font-bold text-foreground">{data.trunkDiameter} ס״מ</p>
+            </div>
+          )}
+          
+          {data.treeSpace && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">מרחב העץ</span>
+              <span className="text-sm text-foreground">{data.treeSpace}</span>
+            </div>
+          )}
+          
+          {data.ageEstimated !== undefined && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">גיל משוער?</span>
+              <span className="text-sm text-foreground">{data.ageEstimated ? 'כן' : 'לא'}</span>
             </div>
           )}
 
-          {data.height !== undefined && (
-            <div className="flex flex-col gap-2 p-3 rounded-lg bg-accent">
-              <div className="flex items-center gap-2 text-accent-foreground">
-                <Ruler className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">גובה</span>
+          <div className="grid grid-cols-2 gap-3">
+            {data.trunkDiameter !== undefined && (
+              <div className="flex flex-col gap-1 p-3 rounded-lg bg-accent/50">
+                <span className="text-xs text-muted-foreground">קוטר הגזע</span>
+                <span className="text-base font-semibold text-foreground">{data.trunkDiameter} ס״מ</span>
               </div>
-              <p className="text-xl font-bold text-foreground">{data.height} מ׳</p>
-            </div>
-          )}
+            )}
 
-          {data.canopyArea !== undefined && (
-            <div className="flex flex-col gap-2 p-3 rounded-lg bg-accent">
-              <div className="flex items-center gap-2 text-accent-foreground">
-                <Ruler className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">שטח חופה</span>
+            {data.height !== undefined && (
+              <div className="flex flex-col gap-1 p-3 rounded-lg bg-accent/50">
+                <span className="text-xs text-muted-foreground">גובה העץ</span>
+                <span className="text-base font-semibold text-foreground">{data.height} מ׳</span>
               </div>
-              <p className="text-xl font-bold text-foreground">{data.canopyArea} מ״ר</p>
-            </div>
-          )}
+            )}
 
-          {data.age !== undefined && (
-            <div className="flex flex-col gap-2 p-3 rounded-lg bg-accent">
-              <div className="flex items-center gap-2 text-accent-foreground">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">גיל משוער</span>
+            {data.crownDiameter !== undefined && (
+              <div className="flex flex-col gap-1 p-3 rounded-lg bg-accent/50">
+                <span className="text-xs text-muted-foreground">קוטר הצמרת</span>
+                <span className="text-base font-semibold text-foreground">{data.crownDiameter} מ׳</span>
               </div>
-              <p className="text-xl font-bold text-foreground">{data.age} שנים</p>
-            </div>
-          )}
+            )}
+
+            {data.canopyArea !== undefined && (
+              <div className="flex flex-col gap-1 p-3 rounded-lg bg-accent/50">
+                <span className="text-xs text-muted-foreground">שטח הצמרת</span>
+                <span className="text-base font-semibold text-foreground">{data.canopyArea} מ״ר</span>
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
