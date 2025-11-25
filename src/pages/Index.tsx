@@ -1,38 +1,28 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { TreeCard } from "@/components/TreeCard";
 import { TreeIdInput } from "@/components/TreeIdInput";
-import { TreePine } from "lucide-react";
+import { TreePine, Loader2, AlertCircle } from "lucide-react";
+import { fetchTreeData, transformTreeData } from "@/services/treeApi";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Index = () => {
   const [treeId, setTreeId] = useState("8G4P4VXP+GR5V");
 
-  // Mock data based on the original tree data from Digital Forest
-  const mockTreeData = {
-    id: treeId,
-    species: "מייש דרומי",
-    trunkDiameter: 17.0,
-    height: 5.0,
-    canopyArea: 47.7,
-    crownDiameter: 7.0,
-    ageEstimated: true,
-    municipality: "הוד השרון",
-    street: "שלמה בן יוסף",
-    parcel: "6442/410",
-    coordinates: "32.14877, 34.8871",
-    treeSpace: "מדרכה",
-    internalIds: ["3913", "canopy-1140206"],
-    photoUrl: "https://s3.eu-west-2.wasabisys.com/opentreebase-public/source/hod-hasharon/photos/3913.jpg",
-    dataSources: [
-      { name: "מיפוי חופות עצים", date: "2023-02-06" },
-      { name: "סקר עצים הוד השרון", date: "2023-12-01" }
-    ],
-    status: "identified" as const,
-  };
+  // Fetch tree data using React Query
+  const { data: apiData, isLoading, error, refetch } = useQuery({
+    queryKey: ["tree", treeId],
+    queryFn: () => fetchTreeData(treeId),
+    enabled: !!treeId,
+    retry: 1,
+  });
+
+  // Transform API data to component format
+  const treeData = transformTreeData(apiData ?? []);
 
   const handleSearch = (newTreeId: string) => {
     setTreeId(newTreeId);
-    // Here you would fetch the actual tree data from the Digital Forest API
-    console.log("Searching for tree:", newTreeId);
+    // React Query will automatically refetch when treeId changes
   };
 
   return (
@@ -58,8 +48,38 @@ const Index = () => {
           <TreeIdInput onSearch={handleSearch} />
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="bg-card p-8 rounded-lg shadow-md border border-primary/10 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="mr-3 text-foreground">טוען נתוני עץ...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !isLoading && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle className="text-right">שגיאה</AlertTitle>
+            <AlertDescription className="text-right">
+              לא ניתן לטעון את נתוני העץ. אנא בדוק את מזהה העץ ונסה שוב.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* No Data Found */}
+        {!isLoading && !error && !treeData && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle className="text-right">לא נמצאו תוצאות</AlertTitle>
+            <AlertDescription className="text-right">
+              לא נמצא עץ עם המזהה {treeId}. אנא בדוק את המזהה ונסה שוב.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Tree Card */}
-        <TreeCard data={mockTreeData} />
+        {!isLoading && treeData && <TreeCard data={treeData} />}
 
         {/* Info Section */}
         <div className="bg-card p-4 rounded-lg shadow-sm border border-primary/10">
