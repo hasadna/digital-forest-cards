@@ -126,20 +126,6 @@ export const TreeCard = ({ data }: TreeCardProps) => {
             <Separator />
             <div className="space-y-3">
               <h3 className="text-base font-semibold text-foreground">רשימת מקורות המידע</h3>
-              {(data.collectionType || data.sourceType) && (
-                <div className="flex gap-2 justify-end">
-                  {data.sourceType && (
-                    <Badge variant="outline" className="text-xs">
-                      {data.sourceType}
-                    </Badge>
-                  )}
-                  {data.collectionType && (
-                    <Badge variant="outline" className="text-xs">
-                      {data.collectionType}
-                    </Badge>
-                  )}
-                </div>
-              )}
               {data.dataSources.map((source, idx) => (
                 <div key={idx} className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">{source.name}</span>
