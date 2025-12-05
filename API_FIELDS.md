@@ -279,3 +279,5 @@ interface TreeData {
 
 5. **Coordinate systems**: Data includes both WGS84 (standard GPS) and ITM (Israeli grid).
 
+
+

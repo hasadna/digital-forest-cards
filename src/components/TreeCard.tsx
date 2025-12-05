@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { TreePine, Ruler, Calendar, MapPin, Info, Hash } from "lucide-react";
+import { TreePine, MapPin, Info, Hash, Share2, ExternalLink, Camera, Ruler } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DataSource {
   name: string;
@@ -43,216 +45,259 @@ interface TreeCardProps {
 }
 
 export const TreeCard = ({ data }: TreeCardProps) => {
-  // const googleMapsKey = "AIzaSyAW0_GwE7WPDox5RZnUMkESHGiSe5siWdQ"; // TODO: Configure API key restrictions
-  
+  const municipalId = data.internalIds?.[0];
+  const displayId = municipalId ?? data.id;
+  const speciesCatalogUrl = data.species
+    ? `https://catalog.hasadna.org.il/trees?query=${encodeURIComponent(data.species)}`
+    : undefined;
+  const shareUrl = typeof window !== "undefined" ? window.location.href : undefined;
+
+  const measurementCards = [
+    { label: "קוטר הגזע", value: data.trunkDiameter, unit: "ס״מ" },
+    { label: "גובה העץ", value: data.height, unit: "מ׳" },
+    { label: "קוטר הצמרת", value: data.crownDiameter, unit: "מ׳" },
+  ].filter((item) => item.value !== undefined && item.value !== null);
+
+  const handleShare = async () => {
+    const payload = {
+      title: data.species ? `כרטיס עץ: ${data.species}` : "כרטיס עץ דיגיטלי",
+      text: municipalId ? `מזהה רשות: ${municipalId}` : `מזעץ: ${data.id}`,
+      url: shareUrl,
+    };
+
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share(payload);
+        return;
+      }
+
+      if (typeof navigator !== "undefined" && navigator.clipboard && payload.url) {
+        await navigator.clipboard.writeText(payload.url);
+        window?.alert?.("הקישור הועתק ללוח");
+      }
+    } catch (error) {
+      console.error("Error sharing tree card:", error);
+    }
+  };
+
+  const renderInfoRow = (label: string, value?: string, options?: { isLtr?: boolean }) => {
+    if (!value) return null;
+    return (
+      <div className="flex items-center justify-between gap-3 text-base">
+        <span className="text-sm text-muted-foreground">{label}</span>
+        <span className={cn("text-sm font-medium text-foreground", options?.isLtr && "ltr text-left")}>
+          {value}
+        </span>
+      </div>
+    );
+  };
+
+  const ageDisplay = (() => {
+    if (typeof data.age === "number") {
+      return `${data.age}${data.ageEstimated ? " (משוער)" : ""}`;
+    }
+    if (data.ageEstimated) {
+      return "משוער";
+    }
+    return "לא זמין";
+  })();
+
   return (
-    <Card className="w-full shadow-lg border-primary/20" dir="rtl">
-      <CardHeader className="bg-accent pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl flex items-center gap-2 text-accent-foreground">
-            <TreePine className="h-6 w-6 text-primary" />
-            <span>מזעץ: {data.id}</span>
-          </CardTitle>
-          <Badge 
-            variant={data.status === "identified" ? "default" : "secondary"}
-            className="bg-primary text-primary-foreground"
-          >
-            {data.status === "identified" ? "עץ מזוהה" : "חשד לעץ"}
-          </Badge>
+    <Card className="w-full border border-border/60 bg-card text-card-foreground shadow-2xl" dir="rtl">
+      <CardHeader className="border-b border-border/60 bg-primary/10 pb-6">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-1">
+              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">מזעץ</p>
+              <CardTitle className="flex items-center gap-2 text-3xl font-semibold">
+                <TreePine className="h-6 w-6 text-primary" />
+                <span>{displayId}</span>
+              </CardTitle>
+              {data.id && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Hash className="h-4 w-4" />
+                  <span>מזהה יע״ד: {data.id}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className={cn(
+                  "border-primary/50 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide",
+                  data.status === "identified" ? "text-primary-foreground" : "text-secondary-foreground",
+                )}
+              >
+                {data.status === "identified" ? "עץ מזוהה" : "חשד לעץ"}
+              </Badge>
+              <Button variant="ghost" size="icon" onClick={handleShare} aria-label="שיתוף רשומה">
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          {municipalId && (
+            <p className="text-sm text-muted-foreground">
+              מזהה רשות: <span className="font-medium text-foreground">{municipalId}</span>
+            </p>
+          )}
         </div>
       </CardHeader>
 
-      <CardContent className="pt-6 space-y-6">
-        {/* Main Info Section */}
-        <div className="space-y-3">
-          {data.species && (
-            <div className="space-y-1">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">מין</span>
-                <span className="text-base font-medium text-foreground">{data.species}</span>
-              </div>
+      <CardContent className="space-y-8 pt-6">
+        {/* Primary Info Section */}
+        <section className="space-y-4 rounded-2xl border border-border/60 bg-background/40 p-4">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm text-muted-foreground">מין העץ</span>
+              {speciesCatalogUrl && (
+                <a
+                  href={speciesCatalogUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-accent hover:text-accent/80"
+                >
+                  מידע על המין
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              )}
+            </div>
+            <p className="text-2xl font-semibold text-foreground">{data.species ?? "?"}</p>
+            <div className="space-y-1 text-right">
               {data.speciesEnglish && (
-                <div className="flex justify-end">
-                  <span className="text-sm text-muted-foreground italic ltr">{data.speciesEnglish}</span>
-                </div>
+                <p className="text-sm text-muted-foreground italic ltr">{data.speciesEnglish}</p>
               )}
               {data.genus && (
-                <div className="flex justify-end">
-                  <span className="text-xs text-muted-foreground ltr">Genus: {data.genus}</span>
-                </div>
+                <p className="text-xs text-muted-foreground ltr">Genus: {data.genus}</p>
               )}
             </div>
-          )}
-          
-          {data.coordinates && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">נ.צ</span>
-              <span className="text-base font-medium text-foreground ltr">{data.coordinates}</span>
-            </div>
-          )}
-          
-          {data.municipality && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">רשות מקומית</span>
-              <span className="text-base font-medium text-foreground">{data.municipality}</span>
-            </div>
-          )}
-          
-          {data.fullAddress && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">כתובת</span>
-              <span className="text-base font-medium text-foreground">{data.fullAddress}</span>
-            </div>
-          )}
-          
-          {data.street && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">רחוב</span>
-              <span className="text-base font-medium text-foreground">{data.street}</span>
-            </div>
-          )}
-          
-          {data.parcel && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">גוש/חלקה</span>
-              <span className="text-base font-medium text-foreground ltr">{data.parcel}</span>
-            </div>
-          )}
-        </div>
+          </div>
 
-        {/* Data Sources Section */}
-        {data.dataSources && data.dataSources.length > 0 && (
-          <>
-            <Separator />
-            <div className="space-y-3">
-              <h3 className="text-base font-semibold text-foreground">רשימת מקורות המידע</h3>
-              {data.dataSources.map((source, idx) => (
-                <div key={idx} className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">{source.name}</span>
-                  <span className="text-sm text-foreground">{source.date}</span>
-                </div>
-              ))}
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-xl border border-border/40 bg-card/70 p-3">
+              <span className="text-xs text-muted-foreground">גיל</span>
+              <p className="text-lg font-semibold text-foreground">{ageDisplay}</p>
             </div>
-          </>
-        )}
-
-        {/* Map/Street View Section - TODO: Fix API key restrictions */}
-        {/* {data.id && (
-          <>
-            <Separator />
-            <div className="space-y-3">
-              <h3 className="text-base font-semibold text-foreground">מיקום במפה (לחץ על הבובה לתצוגת רחוב)</h3>
-              <iframe
-                width="100%"
-                height="340"
-                loading="lazy"
-                allowFullScreen
-                style={{ border: 0, borderRadius: '0.5rem' }}
-                src={`https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(data.id)}&key=${googleMapsKey}&zoom=18&maptype=satellite`}
-              />
-            </div>
-          </>
-        )} */}
-
-        {/* Tree Photo */}
-        {data.photoUrl && (
-          <>
-            <Separator />
-            <div className="space-y-3">
-              <h3 className="text-base font-semibold text-foreground">תמונות כלליות</h3>
-              <img 
-                src={data.photoUrl} 
-                alt="תמונת העץ"
-                className="w-full rounded-lg shadow-md"
-                loading="lazy"
-              />
-            </div>
-          </>
-        )}
-
-        {/* Extra Info Section */}
-        <Separator />
-        <div className="space-y-4">
-          <h3 className="text-base font-semibold text-foreground">מידע נוסף</h3>
-          
-          {data.internalIds && data.internalIds.length > 0 && (
-            <div className="space-y-2">
-              <span className="text-sm text-muted-foreground">מזהה פנימי</span>
-              <div className="flex flex-wrap gap-2">
-                {data.internalIds.map((id, idx) => (
-                  <Badge key={idx} variant="outline" className="text-xs">
-                    {id}
-                  </Badge>
-                ))}
+            {measurementCards.map((item) => (
+              <div key={item.label} className="rounded-xl border border-border/40 bg-card/70 p-3">
+                <span className="text-xs text-muted-foreground">{item.label}</span>
+                <p className="text-lg font-semibold text-foreground">
+                  {item.value} {item.unit}
+                </p>
               </div>
-            </div>
-          )}
-          
-          {data.treeSpace && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">מרחב העץ</span>
-              <span className="text-sm text-foreground">{data.treeSpace}</span>
-            </div>
-          )}
-          
-          {data.numTrunks && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">מספר גזעים</span>
-              <span className="text-sm text-foreground">{data.numTrunks}</span>
-            </div>
-          )}
-          
-          {data.healthScore !== undefined && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">ציון בריאות</span>
-              <span className="text-sm text-foreground">{data.healthScore}</span>
-            </div>
-          )}
-          
-          {data.goodStatus && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">מצב העץ</span>
-              <span className="text-sm text-foreground">{data.goodStatus}</span>
-            </div>
-          )}
-          
-          {data.ageEstimated !== undefined && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">גיל משוער?</span>
-              <span className="text-sm text-foreground">{data.ageEstimated ? 'כן' : 'לא'}</span>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-3">
-            {data.trunkDiameter !== undefined && (
-              <div className="flex flex-col gap-1 p-3 rounded-lg bg-accent/50">
-                <span className="text-xs text-muted-foreground">קוטר הגזע</span>
-                <span className="text-base font-semibold text-foreground">{data.trunkDiameter} ס״מ</span>
-              </div>
-            )}
-
-            {data.height !== undefined && (
-              <div className="flex flex-col gap-1 p-3 rounded-lg bg-accent/50">
-                <span className="text-xs text-muted-foreground">גובה העץ</span>
-                <span className="text-base font-semibold text-foreground">{data.height} מ׳</span>
-              </div>
-            )}
-
-            {data.crownDiameter !== undefined && (
-              <div className="flex flex-col gap-1 p-3 rounded-lg bg-accent/50">
-                <span className="text-xs text-muted-foreground">קוטר הצמרת</span>
-                <span className="text-base font-semibold text-foreground">{data.crownDiameter} מ׳</span>
-              </div>
-            )}
-
-            {data.canopyArea !== undefined && (
-              <div className="flex flex-col gap-1 p-3 rounded-lg bg-accent/50">
-                <span className="text-xs text-muted-foreground">שטח הצמרת</span>
-                <span className="text-base font-semibold text-foreground">{data.canopyArea} מ״ר</span>
+            ))}
+            {measurementCards.length === 0 && (
+              <div className="flex items-center gap-2 rounded-xl border border-border/40 bg-card/70 p-3 text-sm text-muted-foreground">
+                <Ruler className="h-4 w-4 text-muted-foreground" />
+                ללא נתוני מדידה רשמיים
               </div>
             )}
           </div>
-        </div>
+        </section>
+
+        {/* Spatial Info */}
+        <section className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+            <MapPin className="h-4 w-4" />
+            מידע מרחבי
+          </div>
+          <div className="space-y-3">
+            {renderInfoRow("רשות מקומית", data.municipality)}
+            {renderInfoRow("רחוב", data.street ?? data.fullAddress)}
+            {renderInfoRow("גוש/חלקה", data.parcel, { isLtr: true })}
+            {renderInfoRow("נ.צ", data.coordinates, { isLtr: true })}
+          </div>
+        </section>
+
+        {/* Photo Section */}
+        <section className="rounded-2xl border border-border/60 bg-card/60">
+          <div className="flex items-center justify-between border-b border-border/60 px-4 py-3 text-sm font-semibold text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Camera className="h-4 w-4" />
+              תמונות
+            </div>
+            {!data.photoUrl && <span className="text-xs text-muted-foreground">אין תמונה רשמית עדיין</span>}
+          </div>
+          <div className="p-4">
+            {data.photoUrl ? (
+              <img
+                src={data.photoUrl}
+                alt="תמונת העץ"
+                className="w-full rounded-xl border border-border/60 object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border/60 bg-background/40 p-6 text-center text-sm text-muted-foreground">
+                <Camera className="h-6 w-6" />
+                <p>עדיין לא נוספה תמונה לעץ הזה.</p>
+                <Button variant="outline" disabled className="opacity-60">
+                  הוספת תמונה (בקרוב)
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Data Sources */}
+        {data.dataSources && data.dataSources.length > 0 && (
+          <section className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4">
+            <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+              <Info className="h-4 w-4" />
+              מקורות המידע
+            </div>
+            <div className="space-y-2">
+              {data.dataSources.map((source, idx) => (
+                <div key={`${source.name}-${source.date}-${idx}`} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{source.name}</span>
+                  <span className="text-foreground">{source.date}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Additional Details */}
+        <section className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+            <Info className="h-4 w-4" />
+            מידע נוסף
+          </div>
+          <div className="space-y-3">
+            {data.internalIds && data.internalIds.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-sm text-muted-foreground">מזהים פנימיים</span>
+                <div className="flex flex-wrap gap-2">
+                  {data.internalIds.map((id, idx) => (
+                    <Badge key={`${id}-${idx}`} variant="outline" className="text-xs">
+                      {id}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {renderInfoRow("מרחב העץ", data.treeSpace)}
+            {renderInfoRow("מספר גזעים", data.numTrunks?.toString())}
+            {renderInfoRow("ציון בריאות", data.healthScore?.toString())}
+            {renderInfoRow("מצב העץ", data.goodStatus)}
+          </div>
+        </section>
+
+        <Separator />
+
+        {/* Disclaimer */}
+        <section className="space-y-3 text-xs leading-relaxed text-muted-foreground">
+          <p>
+            האתר מציג מידע ציבורי פתוח כפי שנאסף על-ידי הסדנא לידע ציבורי בפרויקטים יער עירוני דיגיטלי וקטלוג עצי רחוב וצל.
+            ייתכנו הבדלים בין הנתונים לבין מצב העץ בשטח בשל שגיאות איסוף, עיבוד או שינויים פיזיים.
+          </p>
+          <p>
+            גרסת פיילוט. נשמח להערות ורעיונות לשיפור בכתובת{" "}
+            <a href="mailto:info@hasadna.org.il" className="text-accent hover:underline">
+              info@hasadna.org.il
+            </a>
+            .
+          </p>
+        </section>
       </CardContent>
     </Card>
   );
