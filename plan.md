@@ -41,22 +41,11 @@ Deliver a mobile-first “תעודת זהות לעץ” interface that mirrors Y
 - **Mapping/Creating Municipal ID:** "שימוש באתר למיפוי ויצירת מזהה רשות".
 
 ### Implementation Notes
-- Introduce a centralized theme (CSS variables or Tailwind config) to reuse Ya״ד palette.
-- Species link should point to catalog (URL TBD) but include placeholder anchor now.
 - “Add photo” CTA should be non-functional yet (maybe disabled button) with note “TBD”.
 - No new backend calls required; leverage `transformTreeData` output.
 
 ### Risks / Unknowns
-1. **Species catalog URL**: waiting for exact mapping; placeholder link may be temporary.
-2. **Photo upload flow**: not specified; ensure CTA communicates future availability.
-3. **106/feedback integrations**: copy only for now to avoid dead actions.
-4. **Geolocation add-point**: marked TBD; leave UI affordance without functionality.
-
-### Next Steps
-1. Define theme tokens (CSS vars / Tailwind) matching palette.
-2. Update `TreeCard` structure + content order.
-3. Refresh search UX copy and CTA line.
-4. Add disclaimer + feedback blocks to page/footer.
-   - Disclaimer: "האתר מציג מידע ציבורי פתוח כפי שנאסף ע\"י הסדנא לידע ציבורי בפרויקט יער עירוני דיגיטלי ו-קטלוג עצי רחוב וצל כשירות לציבור. ייתכנו הבדלים בין המידע המוצג למצב בשטח בשל שגיאות באיסוף הנתונים במקור, בעיבוד הנתונים או בשינויים שקרו בשטח."
-   - Feedback: "גרסת פיילוט. נשמח ללמוד ולשמוע רעיונות והצעות לשיפור info@hasadna.org.il"
+- **Photo upload flow**: not specified; ensure CTA communicates future availability.
+- **106/feedback integrations**: copy only for now to avoid dead actions.
+- **Geolocation add-point**: marked TBD; leave UI affordance without functionality.
 
