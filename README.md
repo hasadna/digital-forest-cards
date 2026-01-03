@@ -1,79 +1,52 @@
-# Welcome to your Lovable project
+# Digital Forest Cards
 
-## Project info
+Digital Forest Cards is a mobile-first web app that lets residents look up municipal trees by their physical tag (Municipal ID) and view the available data. The experience mirrors the Ya'ad Digital Urban Forest branding and is intended as a public-facing pilot, with room for future civic contributions such as photos and data updates.
 
-**URL**: https://lovable.dev/projects/f9564955-b52d-4800-8327-58691ff0dea3
+## Tech stack
 
-## Project Description
+- React + TypeScript + Vite
+- shadcn/ui and Tailwind CSS
+- Supabase (backend and db)
+- AWS-compatible S3 for static hosting
 
-**Digital Forest Cards (Maza'at MVP)** is a mobile-first web application designed to allow citizens to view information about municipal trees by searching for their physical tag number (Municipal ID). The project aims to connect residents with urban nature, provide transparency on public tree data, and eventually allow for civic contributions (photos, data updates).
 
-The app mirrors the branding of "Ya'ad" (Digital Urban Forest) and serves as a pilot for public engagement.
+## Getting started
 
-## How can I edit this code?
+1. Install Node.js 20+ and npm.
+2. Clone the repo and install dependencies:
+   ```sh
+   git clone <REPO_URL>
+   cd digital-forest-cards
+   npm install
+   ```
+3. Configure environment variables for Vite:
+   ```sh
+   cp env.example .env.local
+   ```
+   Set values for:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+4. Run the dev server: `npm run dev`
+5. Lint: `npm run lint`
+6. Build: `npm run build`
+7. Preview the production build locally: `npm run preview`
 
-There are several ways of editing your application.
+## Useful scripts
 
-**Use Lovable**
+- `npm run query` – run `scripts/run-query.ts`
+- `npm run export-municipalities` – export example municipality data
+- `npm run export-municipalities-no-canopy` – export municipality data without canopy info
+- `npm run test:functions:unit` – unit tests for Supabase functions (Deno; uses dummy env vars)
+- `npm run test:functions:integration` – integration tests for Supabase functions (expects env in `supabase/.env.test` or the shell)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f9564955-b52d-4800-8327-58691ff0dea3) and start prompting.
+## Deployment
 
-Changes made via Lovable will be committed automatically to this repo.
+The GitHub Actions workflow `.github/workflows/deploy.yml` builds on pushes to `main` and syncs `dist` to the Hasadna S3 bucket `digital-forest-cards-site`. Required secrets:
 
-**Use your preferred IDE**
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `DEPLOY_S3_ACCESS_KEY_ID`
+- `DEPLOY_S3_SECRET_ACCESS_KEY`
+- `DEPLOY_S3_ENDPOINT`
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/f9564955-b52d-4800-8327-58691ff0dea3) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+To deploy manually, run `npm run build` with the same env vars and upload the `dist/` directory to your static host of choice.
