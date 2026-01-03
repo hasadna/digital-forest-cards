@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,8 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
   const [uploadStage, setUploadStage] = useState<"idle" | "creating" | "uploading" | "saving">("idle");
   const [uploadError, setUploadError] = useState<string | null>(null);
   const isUploading = uploadStage !== "idle";
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
+  const galleryInputRef = useRef<HTMLInputElement | null>(null);
 
   const measurementCards = [
     { label: "קוטר הגזע", value: data.trunkDiameter, unit: "ס״מ" },
@@ -406,17 +408,45 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
             <DialogDescription>בחרו תמונה בגודל עד 50MB ושתפו את הקהילה.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileChange}
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => cameraInputRef.current?.click()}
                 disabled={isUploading}
-              />
-              <p className="mt-2 text-xs text-muted-foreground">קבצים נתמכים: JPG, PNG, HEIC, WEBP (עד 50MB)</p>
-              {selectedFile && <p className="mt-1 text-sm font-medium text-foreground">{selectedFile.name}</p>}
+                className="w-1/2"
+              >
+                צילום במצלמה
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => galleryInputRef.current?.click()}
+                disabled={isUploading}
+                className="w-1/2"
+              >
+                העלאה מהגלריה
+              </Button>
             </div>
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileChange}
+              className="hidden"
+              disabled={isUploading}
+            />
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+              disabled={isUploading}
+            />
+            <p className="mt-2 text-xs text-muted-foreground">קבצים נתמכים: JPG, PNG, HEIC, WEBP (עד 50MB)</p>
+            {selectedFile && <p className="mt-1 text-sm font-medium text-foreground">{selectedFile.name}</p>}
             {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
           </div>
           <DialogFooter>
