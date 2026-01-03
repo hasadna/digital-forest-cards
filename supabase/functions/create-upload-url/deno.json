@@ -1,0 +1,5 @@
+{
+  "imports": {},
+  "nodeModulesDir": "auto",
+  "envFile": ["../../.env.test", "../../.env.local"]
+}
