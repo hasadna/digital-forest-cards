@@ -16,6 +16,7 @@ import { TreePine, MapPin, Info, Hash, Share2, ExternalLink, Camera, Loader2, Pl
 import { cn } from "@/lib/utils";
 import type { TreeData, TreeMedia } from "@/types/tree";
 import { recordUpload, requestUploadUrl, uploadFileToS3, uploadViaProxy } from "@/services/mediaService";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 interface TreeCardProps {
   data: TreeData;
@@ -91,17 +92,42 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
     return "לא זמין";
   })();
 
+  const formatMonthYear = (dateString?: string) => {
+    if (!dateString) return "תאריך לא זמין";
+    const parsed = new Date(dateString);
+    if (Number.isNaN(parsed.getTime())) return "תאריך לא זמין";
+    return parsed.toLocaleDateString("he-IL", { month: "long", year: "numeric" });
+  };
+
   const galleryItems = useMemo(() => {
+    const getDate = (m: TreeMedia) =>
+      m.createdAt ||
+      (m as any).created_at ||
+      m.updatedAt ||
+      (m as any).updated_at ||
+      undefined;
+
+    const approvedMedia = (media ?? []).filter((m) => m.status === "approved");
     const official = data.photoUrl
-      ? [{ id: "official-photo", url: data.photoUrl, label: "תמונה רשמית" }]
+      ? [
+          {
+            id: "official-photo",
+            url: data.photoUrl,
+            label: data.metaDate ? formatMonthYear(data.metaDate) : "תמונה רשמית",
+            sortKey: Number.MAX_SAFE_INTEGER, // always first
+          },
+        ]
       : [];
-    const community = (media ?? []).map((item) => ({
-      id: item.id,
-      url: item.publicUrl,
-      label: item.metadata?.originalFileName ?? new Date(item.createdAt).toLocaleDateString("he-IL"),
-    }));
+    const community = approvedMedia
+      .map((item) => ({
+        id: item.id,
+        url: item.publicUrl,
+        label: formatMonthYear(getDate(item)),
+        sortKey: new Date(getDate(item) ?? 0).getTime(),
+      }))
+      .sort((a, b) => b.sortKey - a.sortKey);
     return [...official, ...community];
-  }, [data.photoUrl, media]);
+  }, [data.photoUrl, data.metaDate, media]);
 
   const hasImages = galleryItems.length > 0;
 
@@ -298,19 +324,25 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
                 טוען תמונות...
               </div>
             ) : hasImages ? (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {galleryItems.map((item) => (
-                  <div key={item.id} className="space-y-2">
-                    <img
-                      src={item.url}
-                      alt="תמונת עץ"
-                      className="h-48 w-full rounded-xl border border-border/60 object-cover"
-                      loading="lazy"
-                    />
-                    <p className="text-center text-xs text-muted-foreground">{item.label}</p>
-                  </div>
-                ))}
-              </div>
+              <Carousel className="w-full" dir="ltr">
+                <CarouselContent className="w-full">
+                  {galleryItems.map((item) => (
+                    <CarouselItem key={item.id} className="w-full">
+                      <div className="space-y-2">
+                        <img
+                          src={item.url}
+                          alt="תמונת עץ"
+                          className="w-full max-h-80 rounded-xl border border-border/60 object-cover"
+                          loading="lazy"
+                        />
+                        <p className="text-center text-xs text-muted-foreground">{item.label}</p>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
             ) : (
               <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border/60 bg-background/40 p-6 text-center text-sm text-muted-foreground">
                 <Camera className="h-6 w-6" />
@@ -375,7 +407,13 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Input type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
+              <Input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleFileChange}
+                disabled={isUploading}
+              />
               <p className="mt-2 text-xs text-muted-foreground">קבצים נתמכים: JPG, PNG, HEIC, WEBP (עד 50MB)</p>
               {selectedFile && <p className="mt-1 text-sm font-medium text-foreground">{selectedFile.name}</p>}
             </div>

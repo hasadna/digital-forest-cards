@@ -55,13 +55,26 @@ export const fetchTreeMedia = async (treeId: string) => {
     .from("tree_media")
     .select("*")
     .eq("tree_id", treeId)
-    .eq("status", "approved")
     .order("created_at", { ascending: false });
 
   if (error) {
     throw error;
   }
-  return data;
+
+  // Normalize snake_case to camelCase for UI
+  return (data ?? []).map((item: any) => ({
+    id: item.id,
+    treeId: item.tree_id,
+    s3Key: item.s3_key,
+    publicUrl: item.public_url,
+    mimeType: item.mime_type,
+    fileSizeBytes: item.file_size_bytes,
+    status: item.status,
+    uploadedBy: item.uploaded_by,
+    metadata: item.metadata,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+  }));
 };
 
 export const uploadViaProxy = async (params: { treeId: string; file: File }) => {

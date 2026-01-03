@@ -25,6 +25,7 @@ export interface TreeMedia {
 
 export interface TreeData {
   id: string;
+  metaDate?: string;
   species?: string;
   speciesEnglish?: string;
   genus?: string;

@@ -136,6 +136,7 @@ export const transformTreeData = (apiDataRows: TreeRow[]) => {
 
   return {
     id: mergedData["meta-tree-id"],
+    metaDate: mergedData["meta-date"],
     species: mergedData["attributes-species-clean-he"],
     speciesEnglish: mergedData["attributes-species-clean-en"],
     genus: mergedData["attributes-genus"],
