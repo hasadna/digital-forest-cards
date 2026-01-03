@@ -1,50 +1,30 @@
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { TreePine, MapPin, Info, Hash, Share2, ExternalLink, Camera, Ruler } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { TreePine, MapPin, Info, Hash, Share2, ExternalLink, Camera, Loader2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface DataSource {
-  name: string;
-  date: string;
-}
-
-interface TreeData {
-  id: string;
-  species?: string;
-  speciesEnglish?: string;
-  genus?: string;
-  trunkDiameter?: number;
-  height?: number;
-  canopyArea?: number;
-  crownDiameter?: number;
-  numTrunks?: number;
-  healthScore?: number;
-  goodStatus?: string;
-  age?: number;
-  ageEstimated?: boolean;
-  location?: string;
-  municipality?: string;
-  street?: string;
-  fullAddress?: string;
-  parcel?: string;
-  coordinates?: string;
-  treeSpace?: string;
-  collectionType?: string;
-  sourceType?: string;
-  environment?: string;
-  internalIds?: string[];
-  photoUrl?: string;
-  dataSources?: DataSource[];
-  status: "identified" | "suspected";
-}
+import type { TreeData, TreeMedia } from "@/types/tree";
+import { recordUpload, requestUploadUrl, uploadFileToS3, uploadViaProxy } from "@/services/mediaService";
 
 interface TreeCardProps {
   data: TreeData;
+  media?: TreeMedia[];
+  mediaLoading?: boolean;
+  onUploadComplete?: () => void;
 }
 
-export const TreeCard = ({ data }: TreeCardProps) => {
+export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadComplete }: TreeCardProps) => {
   const municipalId = data.internalIds?.[0];
   const displayId = municipalId ?? data.id;
   const speciesCatalogUrl = data.speciesEnglish
@@ -53,6 +33,13 @@ export const TreeCard = ({ data }: TreeCardProps) => {
       ? `https://www.treecatalog.org.il/tree/${encodeURIComponent(data.species)}`
       : undefined;
   const shareUrl = typeof window !== "undefined" ? window.location.href : undefined;
+
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadStage, setUploadStage] = useState<"idle" | "creating" | "uploading" | "saving">("idle");
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const isUploading = uploadStage !== "idle";
 
   const measurementCards = [
     { label: "קוטר הגזע", value: data.trunkDiameter, unit: "ס״מ" },
@@ -104,6 +91,103 @@ export const TreeCard = ({ data }: TreeCardProps) => {
     return "לא זמין";
   })();
 
+  const galleryItems = useMemo(() => {
+    const official = data.photoUrl
+      ? [{ id: "official-photo", url: data.photoUrl, label: "תמונה רשמית" }]
+      : [];
+    const community = (media ?? []).map((item) => ({
+      id: item.id,
+      url: item.publicUrl,
+      label: item.metadata?.originalFileName ?? new Date(item.createdAt).toLocaleDateString("he-IL"),
+    }));
+    return [...official, ...community];
+  }, [data.photoUrl, media]);
+
+  const hasImages = galleryItems.length > 0;
+
+  const resetDialogState = () => {
+    setSelectedFile(null);
+    setUploadError(null);
+    setUploadStage("idle");
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      resetDialogState();
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    setUploadError(null);
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        setUploadError("נא לבחור קובץ תמונה בלבד");
+        return;
+      }
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+    setUploadError(null);
+    if (!selectedFile.type || !selectedFile.type.startsWith("image/")) {
+      setUploadError("נדרשת תמונת JPEG/PNG/HEIC וכדומה");
+      return;
+    }
+
+    try {
+      setUploadStage("creating");
+      try {
+        const uploadSpec = await requestUploadUrl({
+          treeId: data.id,
+          fileName: selectedFile.name,
+          mimeType: selectedFile.type,
+          fileSizeBytes: selectedFile.size,
+        });
+
+        setUploadStage("uploading");
+        await uploadFileToS3(uploadSpec.uploadUrl, selectedFile, uploadSpec.headers);
+
+        setUploadStage("saving");
+        await recordUpload({
+          treeId: data.id,
+          s3Key: uploadSpec.s3Key,
+          mimeType: selectedFile.type,
+          fileSizeBytes: selectedFile.size,
+          originalFileName: selectedFile.name,
+        });
+      } catch (directError) {
+        console.warn("Direct upload failed, attempting proxy", directError);
+        setUploadStage("saving");
+        await uploadViaProxy({ treeId: data.id, file: selectedFile });
+      }
+
+      toast({
+        title: "התמונה הועלתה בהצלחה",
+        description: "תודה ששיתפת תמונה של העץ!",
+      });
+      handleDialogChange(false);
+      onUploadComplete?.();
+    } catch (error) {
+      console.error("Upload failed", error);
+      setUploadError(error instanceof Error ? error.message : "העלאת התמונה נכשלה. נסו שוב מאוחר יותר.");
+    } finally {
+      setUploadStage("idle");
+    }
+  };
+
+  const renderUploadButton = (variant: "ghost" | "outline" = "ghost", size: "sm" | "default" = "sm") => (
+    <Button variant={variant} size={size} onClick={() => handleDialogChange(true)} disabled={isUploading} className="gap-2">
+      {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+      {hasImages ? "הוספת תמונה נוספת" : "העלאת תמונה"}
+    </Button>
+  );
+
   return (
     <Card className="w-full border border-border/60 bg-card text-card-foreground shadow-sm" dir="rtl">
       <CardHeader className="border-b border-border/60 pb-6">
@@ -126,10 +210,11 @@ export const TreeCard = ({ data }: TreeCardProps) => {
               <Badge
                 variant="outline"
                 className={cn(
-                  "border-primary/50 bg-background px-3 py-1 text-xs font-semibold tracking-wide text-primary",
+                  "border-primary/50 bg-background px-3 py-1 text-xs font-semibold tracking-wide",
+                  data.status === "identified" ? "text-primary" : "text-yellow-600",
                 )}
               >
-                עץ מזוהה
+                {data.status === "identified" ? "עץ מזוהה" : "עץ חשוד"}
               </Badge>
               <Button variant="ghost" size="icon" onClick={handleShare} aria-label="שיתוף רשומה">
                 <Share2 className="h-4 w-4" />
@@ -205,23 +290,32 @@ export const TreeCard = ({ data }: TreeCardProps) => {
               <Camera className="h-4 w-4" />
               תמונות
             </div>
-            {!data.photoUrl && <span className="text-xs text-muted-foreground">אין תמונה רשמית עדיין</span>}
+            {hasImages ? renderUploadButton("ghost", "sm") : <span className="text-xs text-muted-foreground">אין תמונות עדיין</span>}
           </div>
           <div className="p-4">
-            {data.photoUrl ? (
-              <img
-                src={data.photoUrl}
-                alt="תמונת העץ"
-                className="w-full rounded-xl border border-border/60 object-cover"
-                loading="lazy"
-              />
+            {mediaLoading ? (
+              <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground">
+                טוען תמונות...
+              </div>
+            ) : hasImages ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {galleryItems.map((item) => (
+                  <div key={item.id} className="space-y-2">
+                    <img
+                      src={item.url}
+                      alt="תמונת עץ"
+                      className="h-48 w-full rounded-xl border border-border/60 object-cover"
+                      loading="lazy"
+                    />
+                    <p className="text-center text-xs text-muted-foreground">{item.label}</p>
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border/60 bg-background/40 p-6 text-center text-sm text-muted-foreground">
                 <Camera className="h-6 w-6" />
                 <p>עדיין לא נוספה תמונה לעץ הזה.</p>
-                <Button variant="outline" disabled className="opacity-60">
-                  הוספת תמונה (בקרוב)
-                </Button>
+                {renderUploadButton("outline", "default")}
               </div>
             )}
           </div>
@@ -271,9 +365,33 @@ export const TreeCard = ({ data }: TreeCardProps) => {
             {renderInfoRow("מצב העץ", data.goodStatus)}
           </div>
         </section>
-
-
       </CardContent>
+
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>העלאת תמונה חדשה</DialogTitle>
+            <DialogDescription>בחרו תמונה בגודל עד 50MB ושתפו את הקהילה.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Input type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
+              <p className="mt-2 text-xs text-muted-foreground">קבצים נתמכים: JPG, PNG, HEIC, WEBP (עד 50MB)</p>
+              {selectedFile && <p className="mt-1 text-sm font-medium text-foreground">{selectedFile.name}</p>}
+            </div>
+            {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => handleDialogChange(false)} disabled={isUploading}>
+              ביטול
+            </Button>
+            <Button onClick={handleUpload} disabled={!selectedFile || isUploading}>
+              {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              העלאת תמונה
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

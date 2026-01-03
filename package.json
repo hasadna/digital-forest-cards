@@ -11,9 +11,12 @@
     "preview": "vite preview",
     "query": "tsx scripts/run-query.ts",
     "export-municipalities": "tsx scripts/export-municipality-examples.ts",
-    "export-municipalities-no-canopy": "tsx scripts/export-municipality-examples-no-canopy.ts"
+    "export-municipalities-no-canopy": "tsx scripts/export-municipality-examples-no-canopy.ts",
+    "test:functions:unit": "cd supabase/functions/create-upload-url && S3_ENDPOINT_URL=http://example.com BUCKET_NAME=test AWS_ACCESS_KEY_ID_UPLOADER=dummy AWS_SECRET_ACCESS_KEY_UPLOADER=dummy deno test --allow-env && cd ../record-upload && S3_ENDPOINT_URL=http://example.com BUCKET_NAME=test AWS_ACCESS_KEY_ID_UPLOADER=dummy AWS_SECRET_ACCESS_KEY_UPLOADER=dummy SUPABASE_URL=http://example.com SUPABASE_ANON_KEY=dummy deno test --allow-env && cd ../upload-proxy && S3_ENDPOINT_URL=http://example.com BUCKET_NAME=test AWS_ACCESS_KEY_ID_UPLOADER=dummy AWS_SECRET_ACCESS_KEY_UPLOADER=dummy SUPABASE_URL=http://example.com SUPABASE_ANON_KEY=dummy deno test --allow-env",
+    "test:functions:integration": "cd supabase/functions && deno test integration.test.ts --allow-env --allow-net --allow-read --env-file=../.env.test"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.962.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -42,6 +45,7 @@
     "@radix-ui/react-toggle": "^1.1.9",
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@supabase/supabase-js": "^2.89.0",
     "@tanstack/react-query": "^5.83.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

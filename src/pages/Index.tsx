@@ -7,6 +7,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Loader2, AlertCircle, HelpCircle } from "lucide-react";
 import { fetchTreeData, transformTreeData, groupByTreeId } from "@/services/treeApi";
+import { fetchTreeMedia } from "@/services/mediaService";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
@@ -58,6 +59,18 @@ const Index = () => {
 
   // Transform API data to component format
   const treeData = finalData ? transformTreeData(finalData) : null;
+
+  // Fetch community media from Supabase for the selected tree
+  const {
+    data: treeMedia,
+    isLoading: isLoadingMedia,
+    refetch: refetchMedia,
+  } = useQuery({
+    queryKey: ["tree-media", treeData?.id],
+    queryFn: () => fetchTreeMedia(treeData!.id),
+    enabled: !!treeData?.id,
+    retry: 1,
+  });
 
   // Loading state: show loading if either query is loading
   const isLoading = isLoadingInitial || (!!finalTreeId && isLoadingFinal);
@@ -138,7 +151,14 @@ const Index = () => {
         )}
 
         {/* Tree Card */}
-        {!isLoading && treeData && <TreeCard data={treeData} />}
+        {!isLoading && treeData && (
+          <TreeCard
+            data={treeData}
+            media={treeMedia ?? []}
+            mediaLoading={isLoadingMedia}
+            onUploadComplete={() => void refetchMedia()}
+          />
+        )}
       </main>
 
       <Footer />
