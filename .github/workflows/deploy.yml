@@ -26,6 +26,9 @@ jobs:
         run: npm ci
       
       - name: Build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
       - name: Deploy to Hasadna S3
@@ -34,8 +37,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOY_S3_SECRET_ACCESS_KEY }}
           S3_ENDPOINT_URL: ${{ secrets.DEPLOY_S3_ENDPOINT }}
           BUCKET_NAME: digital-forest-cards-site
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
         run: |
           aws --endpoint-url $S3_ENDPOINT_URL s3 sync ./dist s3://$BUCKET_NAME --delete
