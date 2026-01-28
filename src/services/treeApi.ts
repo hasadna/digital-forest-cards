@@ -70,6 +70,29 @@ export const fetchTreeData = async (
   }
 };
 
+const escapeSqlLiteral = (value: string) => value.replace(/'/g, "''");
+
+export const fetchTreeDataByTreeIds = async (treeIds: string[]): Promise<TreeRow[]> => {
+  if (!treeIds || treeIds.length === 0) return [];
+  const uniqueIds = Array.from(new Set(treeIds));
+  const inClause = uniqueIds.map((id) => `'${escapeSqlLiteral(id)}'`).join(", ");
+  const sql = `SELECT * FROM trees_processed WHERE "meta-tree-id" IN (${inClause})`;
+  const encodedQuery = btoa(sql);
+  const url = `${API_BASE_URL}?query=${encodedQuery}&num_rows=1000`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data: TreeApiResponse = await response.json();
+    return data.rows ?? [];
+  } catch (error) {
+    console.error("Error fetching tree data by ids:", error);
+    throw error;
+  }
+};
+
 // Group tree rows by meta-tree-id (to handle multiple municipalities)
 export const groupByTreeId = (rows: TreeRow[]) => {
   const grouped = new Map<string, TreeRow[]>();

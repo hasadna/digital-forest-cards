@@ -1,6 +1,12 @@
 export type TreeStatus = "identified" | "suspected";
 
-export type TreeMediaStatus = "approved" | "flagged" | "deleted" | "test";
+export type TreeMediaStatus =
+  | "approved"
+  | "flagged"
+  | "deleted"
+  | "test"
+  | "pending"
+  | "skipped";
 
 export interface TreeMediaMetadata {
   originalFileName?: string;
