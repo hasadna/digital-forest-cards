@@ -31,6 +31,15 @@ Digital Forest Cards is a mobile-first web app that lets residents look up munic
 6. Build: `npm run build`
 7. Preview the production build locally: `npm run preview`
 
+## Review dashboard
+
+The review dashboard is available at `/review` and lets reviewers filter uploads by status, municipality, and date, then update each image's status.
+
+Requirements:
+- Apply Supabase migrations (adds `pending`/`skipped` and sets default `pending`).
+- Deploy the `review-media` edge function (used for listing and updating media).
+
+
 ## Useful scripts
 
 - `npm run query` – run `scripts/run-query.ts`
