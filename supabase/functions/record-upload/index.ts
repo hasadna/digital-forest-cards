@@ -103,8 +103,8 @@ export const handler = async (req: Request): Promise<Response> => {
       return buildResponse({ error: "metadata must be an object" }, { status: 400 });
     }
 
-    const allowedStatuses = ["approved", "flagged", "deleted", "test"];
-    const statusValue = status && typeof status === "string" ? status : "approved";
+    const allowedStatuses = ["approved", "flagged", "deleted", "test", "pending", "skipped"];
+    const statusValue = status && typeof status === "string" ? status : "pending";
     if (!allowedStatuses.includes(statusValue)) {
       return buildResponse({ error: "invalid status" }, { status: 400 });
     }

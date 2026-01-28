@@ -89,8 +89,10 @@ export const handler = async (req: Request): Promise<Response> => {
       return buildResponse({ error: "Only image uploads are supported" }, { status: 400 });
     }
 
-    const allowedStatuses = ["approved", "flagged", "deleted", "test"];
-    const statusValue = typeof status === "string" && allowedStatuses.includes(status) ? status : "approved";
+    const allowedStatuses = ["approved", "flagged", "deleted", "test", "pending", "skipped"];
+    const statusValue = typeof status === "string" && allowedStatuses.includes(status)
+      ? status
+      : "pending";
 
     const ext = fileName.includes(".") ? fileName.split(".").pop() : undefined;
     const safeExt = ext && /^[a-zA-Z0-9]+$/.test(ext) ? `.${ext}` : "";
