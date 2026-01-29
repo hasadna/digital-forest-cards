@@ -18,7 +18,7 @@ const requiredEnvVars = [
   "AWS_ACCESS_KEY_ID_UPLOADER",
   "AWS_SECRET_ACCESS_KEY_UPLOADER",
   "SUPABASE_URL",
-  "SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
 ];
 
 const env = Object.fromEntries(
@@ -42,7 +42,7 @@ const s3Client = new S3Client({
   },
 });
 
-const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
 
