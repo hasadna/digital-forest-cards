@@ -24,3 +24,5 @@ progress.md
 *.njsproj
 *.sln
 *.sw?
+
+references/*
