@@ -1,11 +1,13 @@
+import { Link } from "react-router-dom";
+
 export const Footer = () => {
     return (
         <footer className="w-full bg-[#354F3D] py-6 text-center text-sm text-white" dir="rtl">
             <div className="container px-4">
                 <div className="flex items-center justify-center gap-3 text-sm font-medium text-white/90">
-                    <a href="#" className="hover:text-white">
+                    <Link to="/usage-policy" className="hover:text-white">
                         תנאי שימוש
-                    </a>
+                    </Link>
                     <span className="text-white/70">|</span>
                     <a href="#" className="hover:text-white">
                         הצהרת נגישות
