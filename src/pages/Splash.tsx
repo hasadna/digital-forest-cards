@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import treeOne from "@/assets/tree-1.svg";
-import treeTwo from "@/assets/tree-2.svg";
-import treeThree from "@/assets/tree-3.svg";
+import treeOne from "@/assets/donate.svg";
+import treeTwo from "@/assets/tree-identification.svg";
+import treeThree from "@/assets/vision.svg";
 
 const Splash = () => {
   return (
