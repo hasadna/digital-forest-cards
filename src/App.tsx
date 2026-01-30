@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Splash from "./pages/Splash";
 import ReviewDashboard from "./pages/ReviewDashboard";
 import UsagePolicy from "./pages/UsagePolicy";
 import NotFound from "./pages/NotFound";
@@ -17,7 +18,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Splash />} />
+          <Route path="/app" element={<Index />} />
           <Route path="/review" element={<ReviewDashboard />} />
           <Route path="/usage-policy" element={<UsagePolicy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
