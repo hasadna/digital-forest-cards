@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import treeOne from "@/assets/donate.svg";
@@ -6,6 +7,21 @@ import treeTwo from "@/assets/tree-identification.svg";
 import treeThree from "@/assets/vision.svg";
 
 const Splash = () => {
+  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchValue.trim()) {
+      navigate("/app", { 
+        state: { 
+          initialSearchValue: searchValue.trim(),
+          initialSearchType: searchValue.includes("+") ? "tree-id" : "internal-id"
+        } 
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F2F8FF]" dir="rtl">
       <Header />
@@ -28,18 +44,20 @@ const Splash = () => {
               </div>
             </div>
 
-            <div className="relative mt-10 h-[47px] overflow-hidden rounded-[11px] border border-[#D1CFCF] bg-white">
-              <Link to="/app" className="absolute left-0 top-0 h-full">
+            <form onSubmit={handleSearch} className="relative mt-10 h-[47px] overflow-hidden rounded-[11px] border border-[#D1CFCF] bg-white">
+              <button type="submit" className="absolute left-0 top-0 h-full">
                 <span className="inline-flex h-full items-center justify-center rounded-[11px] bg-[#354F3D] px-6 text-[16px] font-medium text-white">
                   חיפוש
                 </span>
-              </Link>
+              </button>
               <input
                 type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="מספר העץ..."
                 className="h-full w-full bg-transparent pl-24 pr-4 text-right text-[20px] text-[#053856] placeholder:text-[#053856]/60 focus:outline-none"
               />
-            </div>
+            </form>
 
             <p className="mt-4 text-center text-[14px] leading-[35px] text-[#383838]">
               חשוב לדעת: אם אין לעץ תגית מספר, לא ניתן לחפשו
