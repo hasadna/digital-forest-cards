@@ -9,9 +9,9 @@ export const Footer = () => {
                         תנאי שימוש
                     </Link>
                     <span className="text-white/70">|</span>
-                    <a href="#" className="hover:text-white">
+                    <Link to="/accessibility" className="hover:text-white">
                         הצהרת נגישות
-                    </a>
+                    </Link>
                 </div>
                 <div className="mx-auto my-4 h-px w-full max-w-4xl bg-white/25" />
                 <p className="mx-auto max-w-4xl text-sm leading-relaxed text-white/90">
