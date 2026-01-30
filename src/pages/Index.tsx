@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
 import { TreeCard } from "@/components/TreeCard";
 import { TreeIdInput } from "@/components/TreeIdInput";
 import { MunicipalitySelector } from "@/components/MunicipalitySelector";
@@ -12,8 +13,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const [searchValue, setSearchValue] = useState("8G4P4VXP+GR5V");
-  const [searchType, setSearchType] = useState<"tree-id" | "internal-id">("tree-id");
+  const location = useLocation();
+  const state = location.state as { initialSearchValue?: string; initialSearchType?: "tree-id" | "internal-id" } | null;
+
+  const [searchValue, setSearchValue] = useState(state?.initialSearchValue || "8G4P4VXP+GR5V");
+  const [searchType, setSearchType] = useState<"tree-id" | "internal-id">(state?.initialSearchType || "tree-id");
   const [selectedTreeId, setSelectedTreeId] = useState<string | null>(null);
   const [finalTreeId, setFinalTreeId] = useState<string | null>(null);
 
