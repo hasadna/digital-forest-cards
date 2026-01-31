@@ -1,9 +1,11 @@
+import { Link } from "react-router-dom";
+
 export const Header = () => {
     return (
         <header className="sticky top-0 z-50 w-full bg-[#354F3D] text-white" dir="rtl">
             <div className="container flex h-[65px] items-center justify-between px-[24px] py-[10px]">
-                <a
-                    href="https://app.digital-forest.org.il/"
+                <Link
+                    to="/"
                     className="flex flex-col text-right leading-none transition-opacity hover:opacity-90"
                 >
                     <span
@@ -16,7 +18,7 @@ export const Header = () => {
                     >
                         המְּזַעֵץ
                     </span>
-                </a>
+                </Link>
                 <a
                     href="https://www.hasadna.org.il/"
                     className="flex items-center gap-2 text-right transition-opacity hover:opacity-90"
