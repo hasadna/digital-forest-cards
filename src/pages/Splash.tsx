@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import logo from "@/assets/tu-bishvat-logo.png";
+import logo from "@/assets/tu-bishvat-logo-with-text.png";
 import treeOne from "@/assets/donate.svg";
 import treeTwo from "@/assets/tree-identification.svg";
 import treeThree from "@/assets/vision.svg";
@@ -39,16 +39,16 @@ const Splash = () => {
             <div className="absolute top-0 left-0 w-full h-24 bg-[#354F3D] opacity-10" />
             
             <div className="absolute left-1/2 top-[20px] -translate-x-1/2 transform transition-transform duration-700 hover:scale-110">
-              <div className="h-[120px] w-[120px] rounded-full bg-white p-1 shadow-md border-4 border-[#354F3D]">
+              <div className="h-[140px] w-[140px] rounded-full bg-white p-1 shadow-md border-4 border-[#354F3D] overflow-hidden">
                 <img 
                   src={logo} 
                   alt="המזעץ - לוגו טו בשבט" 
-                  className="h-full w-full rounded-full object-cover"
+                  className="h-full w-full object-cover rounded-full"
                 />
               </div>
             </div>
 
-            <div className="text-black mt-12">
+            <div className="text-black mt-16">
               <p className="text-[48px] font-bold leading-[56px] text-[#354F3D]">המְּזַעֵץ</p>
               <div className="mt-2 space-y-1">
                 <h1 className="text-[26px] font-bold leading-[34px] text-[#2D3A2F]">
