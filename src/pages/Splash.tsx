@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import logo from "@/assets/tu-bishvat-logo-with-text.png";
+import logo from "@/assets/tu-bishvat-logo.webp";
 import treeOne from "@/assets/donate.svg";
 import treeTwo from "@/assets/tree-identification.svg";
 import treeThree from "@/assets/vision.svg";
