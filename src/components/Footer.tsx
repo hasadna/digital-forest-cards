@@ -24,11 +24,11 @@ export const Footer = () => {
                         קטלוג עצי רחוב וצל
                     </a>{" "}
                     כשירות לציבור. ייתכנו הבדלים בין המידע המוצג למצב בשטח בשל שגיאות באיסוף הנתונים במקור, בעיבוד
-                    הנתונים או בשינויים שקרו בשטח.
+                    הנתונים או בשינויים בשטח.
                 </p>
                 <div className="mx-auto my-4 h-px w-full max-w-4xl bg-white/25" />
                 <p className="text-sm text-white/90">
-                    גרסת פיילוט. נשמח ללמוד ולשמוע רעיונות והצעות לשיפור{" "}
+                המזעץ בגרסת בטא, נשמח למשוב{" "}
                     <a href="mailto:trees@hasadna.org.il" className="font-semibold underline underline-offset-2 hover:text-white">
                         trees@hasadna.org.il
                     </a>
