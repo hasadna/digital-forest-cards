@@ -9,8 +9,8 @@ const UsagePolicy = () => {
         <div className="mx-auto w-full max-w-[430px] px-4 pb-16 pt-8">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 text-right shadow-sm">
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-[#1B4332]">מדיניות שימוש</h1>
-              <h2 className="text-lg font-semibold text-[#1B4332]">הצהרה</h2>
+              <h1 className="text-2xl font-bold text-[#1B4332]">תנאי השימוש</h1>
+              <h2 className="text-lg font-semibold text-[#1B4332]">מדיניות שימוש - הצהרה</h2>
             </div>
 
             <div className="mt-4 text-sm leading-relaxed text-slate-800">
@@ -21,7 +21,7 @@ const UsagePolicy = () => {
               </p>
               <p className="mt-0">
                 ככל שתספק לנו תכנים לצורך הצגה באתר, הרי שאתה מצהיר כי אתה הבעלים של התכנים, מורשה להעבירם
-                ולהקנות את הרשות לשימוש בהם, וכן כי אתה מרשה לנו להציג את התכנים לכלל הציבור, לאפשר לציבור
+                ולהקנות את הרשות לשימוש בהם לפי רישיון שימוש נחלת הכלל - Public Domain, וכן כי אתה מרשה לנו להציג את התכנים לכלל הציבור, לאפשר לציבור
                 לעבד ולפעול כאילו היו תכני האתר מטעמנו. אתה תשא בכל אחריות הנוגעת לפגיעה בזכויות צד שלישי
                 או החוק בנוגע לתכנים שתספק לנו.
               </p>
