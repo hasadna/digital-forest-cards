@@ -226,7 +226,7 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
               <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">מזעץ</p>
               <CardTitle className="flex items-center gap-2 text-3xl font-semibold">
                 <TreePine className="h-6 w-6 text-primary" />
-                <span>מזעץ {municipalId || data.id}</span>
+                <span>מספר עץ עירוני {municipalId || data.id}</span>
               </CardTitle>
               {data.id && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -282,11 +282,7 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-xl border border-border/40 bg-card/70 p-3">
-              <span className="text-xs text-muted-foreground">גיל</span>
-              <p className="text-lg font-semibold text-foreground">{ageDisplay}</p>
-            </div>
+          <div className="grid gap-2 grid-cols-2">
             {measurementCards.map((item) => (
               <div key={item.label} className="rounded-xl border border-border/40 bg-card/70 p-3">
                 <span className="text-xs text-muted-foreground">{item.label}</span>
@@ -295,20 +291,6 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
                 </p>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* Spatial Info */}
-        <section className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-            <MapPin className="h-4 w-4" />
-            מידע מרחבי
-          </div>
-          <div className="space-y-3">
-            {renderInfoRow("רשות מקומית", data.municipality)}
-            {renderInfoRow("רחוב", data.street ?? data.fullAddress)}
-            {renderInfoRow("גוש/חלקה", data.parcel, { isLtr: true })}
-            {renderInfoRow("נ.צ", data.coordinates, { isLtr: true })}
           </div>
         </section>
 
@@ -353,6 +335,21 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
                 {renderUploadButton("outline", "default")}
               </div>
             )}
+          </div>
+        </section>
+
+        
+        {/* Spatial Info */}
+        <section className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+            <MapPin className="h-4 w-4" />
+            מידע מרחבי
+          </div>
+          <div className="space-y-3">
+            {renderInfoRow("רשות מקומית", data.municipality)}
+            {renderInfoRow("רחוב", data.street ?? data.fullAddress)}
+            {renderInfoRow("גוש/חלקה", data.parcel, { isLtr: true })}
+            {renderInfoRow("נ.צ", data.coordinates, { isLtr: true })}
           </div>
         </section>
 

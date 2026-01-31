@@ -151,7 +151,11 @@ export const transformTreeData = (apiDataRows: TreeRow[]) => {
   // Format coordinates
   let coordinates: string | undefined;
   if (mergedData["location-y"] && mergedData["location-x"]) {
-    coordinates = `${mergedData["location-y"]}, ${mergedData["location-x"]}`;
+    const y = Number(mergedData["location-y"]);
+    const x = Number(mergedData["location-x"]);
+    if (!isNaN(y) && !isNaN(x)) {
+      coordinates = `${y.toFixed(6)}, ${x.toFixed(6)}`;
+    }
   }
 
   // Determine status - if any field has species info, it's identified
