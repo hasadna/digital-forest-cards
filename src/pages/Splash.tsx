@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import logo from "@/assets/tu-bishvat-logo-with-text.png";
 import treeOne from "@/assets/donate.svg";
 import treeTwo from "@/assets/tree-identification.svg";
 import treeThree from "@/assets/vision.svg";
 
 const Splash = () => {
   const [searchValue, setSearchValue] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,25 +32,33 @@ const Splash = () => {
     <div className="min-h-screen flex flex-col bg-[#F2F8FF]" dir="rtl">
       <Header />
 
-      <main className="relative flex-1 px-4 py-10 pb-[150px]">
-        <div className="mx-auto w-full max-w-[430px]">
-          <div className="relative rounded-[11px] border border-[#D1CFCF] bg-white px-6 pb-8 pt-[96px] text-center">
-            <div className="absolute left-1/2 top-[20px] flex h-[86px] w-[86px] -translate-x-1/2 items-center justify-center rounded-full bg-[#354F3D] text-lg font-medium text-white">
-              לוגו
-            </div>
-
-            <div className="text-black">
-              <p className="mt-6 text-[40px] font-bold leading-[46px]">המְּזַעֵץ</p>
-              <h1 className="mt-0 text-[24px] font-bold leading-[38px]">
-                לדעת יותר עצי רחוב מסומנים
-              </h1>
-              <div className="mt-4 text-[20px] font-medium leading-[30px]">
-                <p>להוסיף מידע עדכני</p>
-                <p>ולעזור לנהל את היער העירוני</p>
+      <main className="relative flex-1 px-4 py-10 pb-[150px] flex flex-col items-center justify-center">
+        <div className={`mx-auto w-full max-w-[430px] transition-all duration-1000 transform ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="relative rounded-[20px] border border-[#D1CFCF] bg-white px-6 pb-10 pt-[100px] text-center shadow-lg overflow-hidden">
+            
+            <div className="absolute left-1/2 top-[20px] -translate-x-1/2 transform transition-transform duration-700 hover:scale-110">
+              <div className="h-[140px] w-[140px] rounded-full bg-white p-3 overflow-hidden">
+                <img 
+                  src={logo} 
+                  alt="המזעץ - לוגו טו בשבט" 
+                  className="h-full w-full object-cover rounded-full"
+                />
               </div>
             </div>
 
-            <form onSubmit={handleSearch} className="relative mt-10 h-[47px] overflow-hidden rounded-[11px] border border-[#D1CFCF] bg-white">
+            <div className="text-black mt-16">
+              <p className="mt-6 text-[40px] font-bold leading-[46px]">המְּזַעֵץ</p>
+              <h1 className="mt-0 text-[24px] font-bold leading-[38px]">
+              מידע אזרחי למען היער העירוני  
+              </h1>
+              <div className="mt-10 text-[16px] font-medium leading-[28px]">
+                <p>מקלידים מספר עץ עירוני</p>
+                <p>רואים מידע שהעירייה שיתפה</p>
+                <p>ומתעדים בעזרת תמונה עדכנית משלכם</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSearch} className="relative mt-6 h-[47px] overflow-hidden rounded-[11px] border border-[#D1CFCF] bg-white">
               <button type="submit" className="absolute left-0 top-0 h-full">
                 <span className="inline-flex h-full items-center justify-center rounded-[11px] bg-[#354F3D] px-6 text-[16px] font-medium text-white">
                   חיפוש

@@ -16,17 +16,6 @@ export const Header = () => {
                     >
                         המְּזַעֵץ
                     </span>
-                    <span
-                        style={{
-                            fontFamily: "Heebo",
-                            fontWeight: 700,
-                            fontSize: "13px",
-                            lineHeight: "20px",
-                            marginTop: "-8px",
-                        }}
-                    >
-                        לדעת יותר עצי רחוב מסומנים
-                    </span>
                 </a>
                 <a
                     href="https://www.hasadna.org.il/"
