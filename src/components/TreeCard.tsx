@@ -403,7 +403,7 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
       </CardContent>
 
       <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
-        <DialogContent>
+        <DialogContent dir="rtl">
           <DialogHeader>
             <DialogTitle>העלאת תמונה חדשה</DialogTitle>
             <Link to="/usage-policy" className="text-xs text-primary hover:underline w-fit">
