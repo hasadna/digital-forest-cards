@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -405,6 +406,9 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
         <DialogContent>
           <DialogHeader>
             <DialogTitle>העלאת תמונה חדשה</DialogTitle>
+            <Link to="/usage-policy" className="text-xs text-primary hover:underline w-fit">
+              תנאי שימוש
+            </Link>
             <DialogDescription>בחרו תמונה בגודל עד 50MB ושתפו את הקהילה.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
