@@ -7,12 +7,14 @@ import logo from "@/assets/tu-bishvat-logo.webp";
 import treeOne from "@/assets/donate.svg";
 import treeOneSelected from "@/assets/donate-selected.svg";
 import treeTwo from "@/assets/tree-identification.svg";
+import treeTwoSelected from "@/assets/tree-identification-selected.svg";
 import treeThree from "@/assets/vision.svg";
 import treeThreeSelected from "@/assets/vision-selected.svg";
 
 const Splash = () => {
   const [searchValue, setSearchValue] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isIdentificationOpen, setIsIdentificationOpen] = useState(false);
   const [isVisionOpen, setIsVisionOpen] = useState(false);
   const [isDonateOpen, setIsDonateOpen] = useState(false);
   const navigate = useNavigate();
@@ -38,8 +40,20 @@ const Splash = () => {
       const next = !current;
       if (next) {
         setIsVisionOpen(false);
+        setIsIdentificationOpen(false);
       }
       return next;
+    });
+  };
+
+  const handleIdentificationToggle = () => {
+    setIsIdentificationOpen((current) => {
+      const nextValue = !current;
+      if (nextValue) {
+        setIsVisionOpen(false);
+        setIsDonateOpen(false);
+      }
+      return nextValue;
     });
   };
 
@@ -48,12 +62,13 @@ const Splash = () => {
       const next = !current;
       if (next) {
         setIsDonateOpen(false);
+        setIsIdentificationOpen(false);
       }
       return next;
     });
   };
 
-  const isPanelOpen = isVisionOpen || isDonateOpen;
+  const isPanelOpen = isIdentificationOpen || isVisionOpen || isDonateOpen;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F2F8FF]" dir="rtl">
@@ -120,7 +135,18 @@ const Splash = () => {
                 className={`h-[127px] w-auto transition-transform duration-800 group-hover:scale-105 ${isDonateOpen ? "scale-105" : ""}`}
               />
             </button>
-            <img src={treeTwo} alt="זיהוי עץ" className="h-[127px] w-auto" />
+            <button
+              type="button"
+              onClick={handleIdentificationToggle}
+              className="group"
+              aria-pressed={isIdentificationOpen}
+            >
+              <img
+                src={isIdentificationOpen ? treeTwoSelected : treeTwo}
+                alt="זיהוי עץ"
+                className={`h-[127px] w-auto transition-transform duration-800 group-hover:scale-105 ${isIdentificationOpen ? "scale-105" : ""}`}
+              />
+            </button>
             <button
               type="button"
               onClick={handleVisionToggle}
@@ -182,6 +208,42 @@ const Splash = () => {
                 הוא פרויקט נוסף בו אספנו והנגשנו מידע ציבורי אודות מיני עצים.
               </p>
               <p className="mt-4 font-bold">תודה!</p>
+            </div>
+          </SplashTreePanel>
+
+          <SplashTreePanel isOpen={isIdentificationOpen} className="bg-[#493F3F]">
+            <h2 className="text-center text-[30px] font-bold leading-[36px] text-[#CAA241]">
+              זיהוי עץ
+            </h2>
+            <p className="mt-2 text-center text-[18px] font-bold leading-[26px]">
+              משפט ליד-אין הולך לכאן
+            </p>
+            <div className="pl-0 text-[14px] leading-[24px]">
+              <p className="mt-6 font-bold">למה בכלל עצים מסומנים?</p>
+              <p className="mt-2">
+                כדי שעצים ישגשגו צריך לטפל בהם. גיזום, השקייה, הדברת מזיקים
+                ועוד. הטיפולים נעשים על ידי אנשי שטח, ובשאיפה לכל עץ יש תיק
+                המתעד את הטיפולים בו. העץ מסומן כדי להקל על זיהוי העץ בשטח
+                ותיעוד ההיסטוריה שלו.
+              </p>
+              <p className="mt-4 font-bold">מי מסמן אותם?</p>
+              <p className="mt-2">
+                הרשות המקומית (או במילים פשוטות - העירייה שלכם) אחראית על כל
+                העצים במרחב הציבורי. בדר&quot;כ זו מחלקת שפ&quot;ע או איכות
+                הסביבה שאחראית על העצים וכל הגינון בעיר.
+              </p>
+              <p className="mt-4 font-bold">למה לא כל העצים מסומנים?</p>
+              <p className="mt-2">
+                הסימונים מתבצעים בדר&quot;כ במסגרת סקר עצים מרוכז הנעשה ע&quot;י
+                אגרונומים או אילנאים המופעלים ע&quot;י קבלן חיצוני. בסקר אוספים
+                הרבה מידע על העץ, כולל מיקום GPS מדוייק. מסיבה זו מדובר בסקר
+                יקר למדי, ולכן קשה מאוד לסמן את כל העצים.
+              </p>
+              <p className="mt-4 font-bold">כאן אתם נכנסים לתמונה!</p>
+              <p className="mt-2">
+                קשה לסמן את כל העצים, אבל קשה לא פחות לעדכן את המידע. עזרו
+                לעיר שלכם לעדכן את סקר העצים באמצעות התמונות שתעלו דרך המזעץ.
+              </p>
             </div>
           </SplashTreePanel>
 
