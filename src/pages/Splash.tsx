@@ -147,19 +147,24 @@ const Splash = () => {
               למיפוי היער העירוני.
             </p>
             <div className="mt-6 flex justify-center">
-              <button
-                type="button"
-                className="inline-flex items-center justify-center rounded-[14px] bg-[#CAA241] px-12 py-3 text-[18px] font-bold text-white"
+              <a
+                href="https://www.jgive.com/new/he/ils/charity-organizations/652"
+                className="inline-flex items-center justify-center rounded-[14px] bg-[#CAA241] px-12 py-3 text-[18px] font-bold text-white transition-opacity hover:opacity-90"
               >
                 לתרומה
-              </button>
+              </a>
             </div>
             <div className="mt-6 text-center text-[14px] leading-[24px] text-white">
               <p>
                 עלינו.{" "}
-                <span className="underline">הסדנא לידע ציבורי</span> היא ארגון
-                ללא מטרת רווח. אנו פועלים לפתיחת מידע ציבורי והנגשתו בעזרת
-                מתנדבים ואנשי קוד פתוח משנת 2011.
+                <a
+                  href="https://www.hasadna.org.il/"
+                  className="underline underline-offset-2 transition-opacity hover:opacity-90"
+                >
+                  הסדנא לידע ציבורי
+                </a>{" "}
+                היא ארגון ללא מטרת רווח. אנו פועלים לפתיחת מידע ציבורי והנגשתו
+                בעזרת מתנדבים ואנשי קוד פתוח משנת 2011.
               </p>
               <p className="mt-4">
                 אנחנו פועלים לקידום היער העירוני באמצעות נתונים. פרויקט המזעץ
@@ -168,8 +173,13 @@ const Splash = () => {
                 עצים נוספים.
               </p>
               <p className="mt-4">
-                <span className="underline">קטלוג עצי רחוב וצל</span> הוא פרויקט
-                נוסף בו אספנו והנגשנו מידע ציבורי אודות מיני עצים.
+                <a
+                  href="https://www.treecatalog.org.il/"
+                  className="underline underline-offset-2 transition-opacity hover:opacity-90"
+                >
+                  קטלוג עצי רחוב וצל
+                </a>{" "}
+                הוא פרויקט נוסף בו אספנו והנגשנו מידע ציבורי אודות מיני עצים.
               </p>
               <p className="mt-4 font-bold">תודה!</p>
             </div>
