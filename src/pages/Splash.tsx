@@ -2,14 +2,17 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SplashTreePanel } from "@/components/SplashTreePanel";
 import logo from "@/assets/tu-bishvat-logo.webp";
 import treeOne from "@/assets/donate.svg";
 import treeTwo from "@/assets/tree-identification.svg";
 import treeThree from "@/assets/vision.svg";
+import treeThreeSelected from "@/assets/vision-selected.svg";
 
 const Splash = () => {
   const [searchValue, setSearchValue] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isVisionOpen, setIsVisionOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,8 +35,8 @@ const Splash = () => {
     <div className="min-h-screen flex flex-col bg-[#F2F8FF]" dir="rtl">
       <Header />
 
-      <main className="relative flex-1 px-4 py-10 pb-[150px] flex flex-col items-center justify-center">
-        <div className={`mx-auto w-full max-w-[430px] transition-all duration-1000 transform ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <main className="relative flex-1 pt-10 flex flex-col items-center">
+        <div className={`mx-auto w-full max-w-[430px] px-4 transition-all duration-1000 transform ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="relative rounded-[20px] border border-[#D1CFCF] bg-white px-6 pb-10 pt-[100px] text-center shadow-lg overflow-hidden">
             
             <div className="absolute left-1/2 top-[20px] -translate-x-1/2 transform transition-transform duration-700 hover:scale-110">
@@ -79,10 +82,49 @@ const Splash = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 items-end gap-4">
-          <img src={treeOne} alt="" className="h-[127px] w-auto" />
-          <img src={treeTwo} alt="" className="h-[127px] w-auto" />
-          <img src={treeThree} alt="" className="h-[127px] w-auto" />
+        <div className="mt-10 w-full flex-1 flex flex-col items-center">
+          <div className={`relative z-10 flex items-end gap-4 px-4 ${isVisionOpen ? "mt-0" : "mt-auto"}`}>
+            <img src={treeOne} alt="לתרום" className="h-[127px] w-auto" />
+            <img src={treeTwo} alt="זיהוי עץ" className="h-[127px] w-auto" />
+            <button
+              type="button"
+              onClick={() => setIsVisionOpen((current) => !current)}
+              className="group"
+              aria-pressed={isVisionOpen}
+            >
+              <img
+                src={isVisionOpen ? treeThreeSelected : treeThree}
+                alt="חזון"
+                className={`h-[127px] w-auto transition-transform duration-800 group-hover:scale-105 ${isVisionOpen ? "scale-105" : ""}`}
+              />
+            </button>
+          </div>
+
+          <SplashTreePanel isOpen={isVisionOpen}>
+            <h2 className="text-center text-[30px] font-bold leading-[36px] text-[#CAA241]">
+              החָזוֹן שלנו
+            </h2>
+            <p className="mt-2 text-center text-[18px] font-bold leading-[26px]">
+              העצים הם התשתית הירוקה של העיר
+            </p>
+            <div className="pl-0 text-[12px] leading-[20px]">
+              <p className="mt-6">
+                החלום הירוק שלנו הוא שלכל עץ יהיה מספר, ימופה וינוהל ממש כמו
+                שמנהלים עמודי תאורה או כל תשתיות אחרת.
+              </p>
+              <p className="mt-4 space-y-0">
+                כל עץ ביער העירוני שלנו הוא חלק בלתי נפרד מהתשתית העירונית. אך
+                בניגוד לבטון ומתכת, &quot;התשתית הירוקה&quot; היא חיה, צומחת
+                ומורכבת לניהול - וזה בדיוק המקום שבו אתם נכנסים לתמונה.
+              </p>
+              <p className="mt-0 space-y-0">
+                אנחנו מאמינים שמידע על הטבע העירוני שייך לכולם. כשהמידע נגיש
+                ושקוף, כל אזרח ואזרחית הופכים לשותפים עוצמתיים בשמירה על
+                הריאות הירוקות שלנו. יחד, נעזור לרשויות למפות, לעדכן ולטפח את
+                היער העירוני - לטובת כולנו.
+              </p>
+            </div>
+          </SplashTreePanel>
         </div>
       </main>
 
