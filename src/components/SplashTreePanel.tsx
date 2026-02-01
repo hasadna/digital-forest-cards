@@ -13,7 +13,7 @@ export const SplashTreePanel = ({
 }: SplashTreePanelProps) => {
   return (
     <div
-      className={`w-full overflow-hidden transition-all duration-1000 ease-out ${isOpen ? "flex-1 max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}
+      className={`w-full overflow-hidden transition-all duration-800 ease-out ${isOpen ? "flex-1 max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}
       aria-hidden={!isOpen}
     >
       <section

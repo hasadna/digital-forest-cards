@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { trackUiEvent } from "@/lib/analytics";
 
 interface TreeIdInputProps {
   onSearch: (searchValue: string, searchType: "tree-id" | "internal-id") => void;
@@ -20,6 +21,12 @@ export const TreeIdInput = ({ onSearch }: TreeIdInputProps) => {
     if (searchValue.trim()) {
       const trimmedValue = searchValue.trim();
       const searchType = detectSearchType(trimmedValue);
+      trackUiEvent("tree_search_submit", {
+        element_label: "tree_search_submit",
+        search_value: trimmedValue,
+        search_type: searchType,
+        source: "tree_page",
+      });
       onSearch(trimmedValue, searchType);
     }
   };
@@ -37,9 +44,16 @@ export const TreeIdInput = ({ onSearch }: TreeIdInputProps) => {
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="הזן מספר עץ..."
+            data-analytics-label="tree_search_input"
+            data-analytics-event="tree_search_input_change"
             className="flex-1 text-right"
           />
-          <Button type="submit" className="flex-shrink-0 gap-2 px-6">
+          <Button
+            type="submit"
+            className="flex-shrink-0 gap-2 px-6"
+            data-analytics-label="tree_search_submit"
+            data-analytics-ignore
+          >
             <Search className="h-4 w-4" />
             <span>חפש</span>
           </Button>

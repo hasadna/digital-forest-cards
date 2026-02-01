@@ -10,6 +10,7 @@ import treeTwo from "@/assets/tree-identification.svg";
 import treeTwoSelected from "@/assets/tree-identification-selected.svg";
 import treeThree from "@/assets/vision.svg";
 import treeThreeSelected from "@/assets/vision-selected.svg";
+import { trackUiEvent } from "@/lib/analytics";
 
 const Splash = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -25,11 +26,18 @@ const Splash = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchValue.trim()) {
+    const trimmedValue = searchValue.trim();
+    if (trimmedValue) {
+      const searchType = trimmedValue.includes("+") ? "tree-id" : "internal-id";
+      trackUiEvent("splash_search_submit", {
+        element_label: "splash_search_submit",
+        search_value: trimmedValue,
+        search_type: searchType,
+      });
       navigate("/tree", { 
         state: { 
-          initialSearchValue: searchValue.trim(),
-          initialSearchType: searchValue.includes("+") ? "tree-id" : "internal-id"
+          initialSearchValue: trimmedValue,
+          initialSearchType: searchType
         } 
       });
     }
@@ -38,6 +46,11 @@ const Splash = () => {
   const handleDonateToggle = () => {
     setIsDonateOpen((current) => {
       const next = !current;
+      trackUiEvent("splash_panel_toggle", {
+        element_label: "splash_panel_donate",
+        panel: "donate",
+        panel_open: next,
+      });
       if (next) {
         setIsVisionOpen(false);
         setIsIdentificationOpen(false);
@@ -49,6 +62,11 @@ const Splash = () => {
   const handleIdentificationToggle = () => {
     setIsIdentificationOpen((current) => {
       const nextValue = !current;
+      trackUiEvent("splash_panel_toggle", {
+        element_label: "splash_panel_identification",
+        panel: "identification",
+        panel_open: nextValue,
+      });
       if (nextValue) {
         setIsVisionOpen(false);
         setIsDonateOpen(false);
@@ -60,6 +78,11 @@ const Splash = () => {
   const handleVisionToggle = () => {
     setIsVisionOpen((current) => {
       const next = !current;
+      trackUiEvent("splash_panel_toggle", {
+        element_label: "splash_panel_vision",
+        panel: "vision",
+        panel_open: next,
+      });
       if (next) {
         setIsDonateOpen(false);
         setIsIdentificationOpen(false);
@@ -75,7 +98,7 @@ const Splash = () => {
       <Header />
 
       <main className="relative flex-1 pt-10 flex flex-col items-center">
-        <div className={`mx-auto w-full max-w-[430px] px-4 transition-all duration-1000 transform ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`mx-auto w-full max-w-[430px] px-4 transition-all duration-800 transform ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="relative rounded-[20px] border border-[#D1CFCF] bg-white px-6 pb-10 pt-[100px] text-center shadow-lg overflow-hidden">
             
             <div className="absolute left-1/2 top-[20px] -translate-x-1/2 transform transition-transform duration-700 hover:scale-110">
@@ -101,7 +124,12 @@ const Splash = () => {
             </div>
 
             <form onSubmit={handleSearch} className="relative mt-6 h-[47px] overflow-hidden rounded-[11px] border border-[#D1CFCF] bg-white">
-              <button type="submit" className="absolute left-0 top-0 h-full">
+              <button
+                type="submit"
+                className="absolute left-0 top-0 h-full"
+                data-analytics-label="splash_search_submit"
+                data-analytics-ignore
+              >
                 <span className="inline-flex h-full items-center justify-center rounded-[11px] bg-[#354F3D] px-6 text-[16px] font-medium text-white">
                   חיפוש
                 </span>
@@ -111,6 +139,9 @@ const Splash = () => {
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 placeholder="מספר העץ..."
+                data-analytics-label="splash_tree_search_input"
+                data-analytics-event="splash_search_input_change"
+                data-analytics-include-value="true"
                 className="h-full w-full bg-transparent pl-24 pr-4 text-right text-[20px] text-[#053856] placeholder:text-[#053856]/60 focus:outline-none"
               />
             </form>
@@ -128,6 +159,8 @@ const Splash = () => {
               onClick={handleDonateToggle}
               className="group"
               aria-pressed={isDonateOpen}
+              data-analytics-label="splash_panel_donate"
+              data-analytics-ignore
             >
               <img
                 src={isDonateOpen ? treeOneSelected : treeOne}
@@ -140,6 +173,8 @@ const Splash = () => {
               onClick={handleIdentificationToggle}
               className="group"
               aria-pressed={isIdentificationOpen}
+              data-analytics-label="splash_panel_identification"
+              data-analytics-ignore
             >
               <img
                 src={isIdentificationOpen ? treeTwoSelected : treeTwo}
@@ -152,6 +187,8 @@ const Splash = () => {
               onClick={handleVisionToggle}
               className="group"
               aria-pressed={isVisionOpen}
+              data-analytics-label="splash_panel_vision"
+              data-analytics-ignore
             >
               <img
                 src={isVisionOpen ? treeThreeSelected : treeThree}

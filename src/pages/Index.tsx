@@ -153,7 +153,13 @@ const Index = () => {
                 לא מצאנו עץ עם המזהה "{searchValue}"
               </p>
             </div>
-            <Button variant="outline" disabled className="w-full gap-2">
+            <Button
+              variant="outline"
+              disabled
+              className="w-full gap-2"
+              data-analytics-label="tree_add_placeholder"
+              data-analytics-event="tree_add_placeholder_click"
+            >
               להוספת העץ?
               <span className="text-xs">(בקרוב)</span>
             </Button>

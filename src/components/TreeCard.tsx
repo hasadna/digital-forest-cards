@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import type { TreeData, TreeMedia } from "@/types/tree";
 import { recordUpload, requestUploadUrl, uploadFileToS3, uploadViaProxy } from "@/services/mediaService";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { trackUiEvent } from "@/lib/analytics";
 
 interface TreeCardProps {
   data: TreeData;
@@ -51,6 +52,8 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
   const isUploading = uploadStage !== "idle";
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
+  const galleryRef = useRef<HTMLDivElement | null>(null);
+  const seenImageIds = useRef(new Set<string>());
 
   const measurementCards = [
     { label: "קוטר הגזע", value: data.trunkDiameter, unit: "ס״מ" },
@@ -63,6 +66,13 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
       title: data.species ? `כרטיס עץ: ${data.species}` : "כרטיס עץ דיגיטלי",
       url: shareUrl,
     };
+
+    trackUiEvent("tree_share_click", {
+      element_label: "tree_share",
+      tree_id: data.id,
+      share_url: payload.url,
+      species: data.species ?? undefined,
+    });
 
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
@@ -123,6 +133,7 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
             id: "official-photo",
             url: data.photoUrl,
             label: data.metaDate ? formatMonthYear(data.metaDate) : "תמונה רשמית",
+            source: "official",
             sortKey: Number.MAX_SAFE_INTEGER, // always first
           },
         ]
@@ -132,6 +143,7 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
         id: item.id,
         url: item.publicUrl,
         label: formatMonthYear(getDate(item)),
+        source: "community",
         sortKey: new Date(getDate(item) ?? 0).getTime(),
       }))
       .sort((a, b) => b.sortKey - a.sortKey);
@@ -166,6 +178,41 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
       setSelectedFile(null);
     }
   };
+
+  useEffect(() => {
+    const container = galleryRef.current;
+    if (!container) return;
+
+    const images = Array.from(container.querySelectorAll<HTMLImageElement>("img[data-analytics-image-id]"));
+    if (images.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || entry.intersectionRatio < 0.6) return;
+          const target = entry.target as HTMLImageElement;
+          const imageId = target.getAttribute("data-analytics-image-id");
+          if (!imageId || seenImageIds.current.has(imageId)) return;
+          seenImageIds.current.add(imageId);
+
+          trackUiEvent("tree_image_view", {
+            element_label: "tree_image_view",
+            tree_id: data.id,
+            image_id: imageId,
+            image_label: target.getAttribute("data-analytics-image-label") || undefined,
+            image_source: target.getAttribute("data-analytics-image-source") || undefined,
+          });
+        });
+      },
+      { threshold: [0.6] },
+    );
+
+    images.forEach((img) => observer.observe(img));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [galleryItems, data.id]);
 
   const handleUpload = async () => {
     if (!selectedFile) return;
@@ -217,7 +264,15 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
   };
 
   const renderUploadButton = (variant: "ghost" | "outline" = "ghost", size: "sm" | "default" = "sm") => (
-    <Button variant={variant} size={size} onClick={() => handleDialogChange(true)} disabled={isUploading} className="gap-2">
+    <Button
+      variant={variant}
+      size={size}
+      onClick={() => handleDialogChange(true)}
+      disabled={isUploading}
+      className="gap-2"
+      data-analytics-label={hasImages ? "tree_upload_additional" : "tree_upload_start"}
+      data-analytics-event={hasImages ? "tree_upload_additional_click" : "tree_upload_start_click"}
+    >
       {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
       {hasImages ? "הוספת תמונה נוספת" : "העלאת תמונה"}
     </Button>
@@ -251,7 +306,14 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
               >
                 {data.status === "identified" ? "עץ מזוהה" : "עץ חשוד"}
               </Badge>
-              <Button variant="ghost" size="icon" onClick={handleShare} aria-label="שיתוף רשומה">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleShare}
+                aria-label="שיתוף רשומה"
+                data-analytics-ignore
+                data-analytics-label="tree_share"
+              >
                 <Share2 className="h-4 w-4" />
               </Button>
             </div>
@@ -271,6 +333,15 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline hover:text-primary/80"
+                  data-analytics-ignore
+                  onClick={() =>
+                    trackUiEvent("species_catalog_click", {
+                      element_label: "species_catalog_click",
+                      tree_id: data.id,
+                      species: data.species ?? undefined,
+                      url: speciesCatalogUrl,
+                    })
+                  }
                 >
                   מידע על המין
                   <ExternalLink className="h-3 w-3" />
@@ -309,7 +380,7 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
             </div>
             {hasImages ? renderUploadButton("ghost", "sm") : <span className="text-xs text-muted-foreground">אין תמונות עדיין</span>}
           </div>
-          <div className="p-4">
+          <div className="p-4" ref={galleryRef}>
             {mediaLoading ? (
               <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-border/60 text-sm text-muted-foreground">
                 טוען תמונות...
@@ -325,14 +396,17 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
                           alt="תמונת עץ"
                           className="w-full max-h-80 rounded-xl border border-border/60 object-cover"
                           loading="lazy"
+                          data-analytics-image-id={item.id}
+                          data-analytics-image-label={item.label}
+                          data-analytics-image-source={item.source}
                         />
                         <p className="text-center text-xs text-muted-foreground">{item.label}</p>
                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
+                <CarouselPrevious data-analytics-label="tree_gallery_prev" data-analytics-event="tree_gallery_prev_click" />
+                <CarouselNext data-analytics-label="tree_gallery_next" data-analytics-event="tree_gallery_next_click" />
               </Carousel>
             ) : (
               <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border/60 bg-background/40 p-6 text-center text-sm text-muted-foreground">
@@ -422,6 +496,8 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
                 onClick={() => cameraInputRef.current?.click()}
                 disabled={isUploading}
                 className="w-1/2"
+                data-analytics-label="tree_upload_camera_click"
+                data-analytics-event="tree_upload_camera_click"
               >
                 צילום במצלמה
               </Button>
@@ -431,6 +507,8 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
                 onClick={() => galleryInputRef.current?.click()}
                 disabled={isUploading}
                 className="w-1/2"
+                data-analytics-label="tree_upload_gallery_click"
+                data-analytics-event="tree_upload_gallery_click"
               >
                 העלאה מהגלריה
               </Button>
@@ -443,6 +521,8 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
               onChange={handleFileChange}
               className="hidden"
               disabled={isUploading}
+              data-analytics-label="tree_upload_camera_file"
+              data-analytics-event="tree_upload_camera_file_change"
             />
             <input
               ref={galleryInputRef}
@@ -451,16 +531,29 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
               onChange={handleFileChange}
               className="hidden"
               disabled={isUploading}
+              data-analytics-label="tree_upload_gallery_file"
+              data-analytics-event="tree_upload_gallery_file_change"
             />
             <p className="mt-2 text-xs text-muted-foreground">קבצים נתמכים: JPG, PNG, HEIC, WEBP (עד 50MB)</p>
             {selectedFile && <p className="mt-1 text-sm font-medium text-foreground">{selectedFile.name}</p>}
             {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => handleDialogChange(false)} disabled={isUploading}>
+            <Button
+              variant="ghost"
+              onClick={() => handleDialogChange(false)}
+              disabled={isUploading}
+              data-analytics-label="tree_upload_cancel"
+              data-analytics-event="tree_upload_cancel_click"
+            >
               ביטול
             </Button>
-            <Button onClick={handleUpload} disabled={!selectedFile || isUploading}>
+            <Button
+              onClick={handleUpload}
+              disabled={!selectedFile || isUploading}
+              data-analytics-label="tree_upload_submit"
+              data-analytics-event="tree_upload_submit_click"
+            >
               {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               העלאת תמונה
             </Button>

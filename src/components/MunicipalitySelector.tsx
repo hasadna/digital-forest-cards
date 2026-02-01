@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
+import { trackUiEvent } from "@/lib/analytics";
 
 interface MunicipalityOption {
   treeId: string;
@@ -28,9 +29,18 @@ export const MunicipalitySelector = ({ options, onSelect }: MunicipalitySelector
           {options.map((option) => (
             <Button
               key={option.treeId}
-              onClick={() => onSelect(option.treeId)}
+              onClick={() => {
+                trackUiEvent("municipality_selected", {
+                  element_label: "municipality_select",
+                  municipality: option.municipality,
+                  tree_id: option.treeId,
+                });
+                onSelect(option.treeId);
+              }}
               variant="outline"
               className="w-full justify-between text-right h-auto py-4"
+              data-analytics-ignore
+              data-analytics-label="municipality_select"
             >
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />

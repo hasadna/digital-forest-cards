@@ -130,7 +130,10 @@ const ReviewDashboard = () => {
                   setOffset(0);
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger
+                  data-analytics-label="review_status_filter_trigger"
+                  data-analytics-event="review_status_filter_trigger_click"
+                >
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -148,6 +151,8 @@ const ReviewDashboard = () => {
                 placeholder="Filter by municipality"
                 value={municipalityFilter}
                 onChange={(event) => setMunicipalityFilter(event.target.value)}
+                data-analytics-label="review_municipality_filter_input"
+                data-analytics-event="review_municipality_filter_change"
               />
             </div>
             <div className="space-y-2">
@@ -157,11 +162,15 @@ const ReviewDashboard = () => {
                   type="date"
                   value={dateFrom}
                   onChange={(event) => setDateFrom(event.target.value)}
+                  data-analytics-label="review_date_from_input"
+                  data-analytics-event="review_date_from_change"
                 />
                 <Input
                   type="date"
                   value={dateTo}
                   onChange={(event) => setDateTo(event.target.value)}
+                  data-analytics-label="review_date_to_input"
+                  data-analytics-event="review_date_to_change"
                 />
               </div>
             </div>
@@ -170,6 +179,8 @@ const ReviewDashboard = () => {
                 variant="outline"
                 onClick={() => queryClient.invalidateQueries({ queryKey: ["review-media"] })}
                 disabled={isFetching}
+                data-analytics-label="review_refresh"
+                data-analytics-event="review_refresh_click"
               >
                 {isFetching ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Refresh
@@ -242,7 +253,10 @@ const ReviewDashboard = () => {
                           }}
                           disabled={updatingId === item.id}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger
+                            data-analytics-label="review_status_update_trigger"
+                            data-analytics-event="review_status_update_trigger_click"
+                          >
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -272,13 +286,21 @@ const ReviewDashboard = () => {
               Showing {filteredItems.length} of {totalCount} uploads
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => setOffset(0)} disabled={!hasPrev}>
+              <Button
+                variant="outline"
+                onClick={() => setOffset(0)}
+                disabled={!hasPrev}
+                data-analytics-label="review_pagination_first"
+                data-analytics-event="review_pagination_first_click"
+              >
                 First
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setOffset((prev) => Math.max(prev - PAGE_SIZE, 0))}
                 disabled={!hasPrev}
+                data-analytics-label="review_pagination_prev"
+                data-analytics-event="review_pagination_prev_click"
               >
                 Prev
               </Button>
@@ -286,6 +308,8 @@ const ReviewDashboard = () => {
                 variant="outline"
                 onClick={() => setOffset((prev) => prev + PAGE_SIZE)}
                 disabled={!hasNext}
+                data-analytics-label="review_pagination_next"
+                data-analytics-event="review_pagination_next_click"
               >
                 Next
               </Button>
