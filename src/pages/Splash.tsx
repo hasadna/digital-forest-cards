@@ -34,7 +34,7 @@ const Splash = () => {
     <div className="min-h-screen flex flex-col bg-[#F2F8FF]" dir="rtl">
       <Header />
 
-      <main className="relative flex-1 px-4 py-10 flex flex-col items-center">
+      <main className="relative flex-1 px-4 pt-10 flex flex-col items-center">
         <div className={`mx-auto w-full max-w-[430px] transition-all duration-1000 transform ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="relative rounded-[20px] border border-[#D1CFCF] bg-white px-6 pb-10 pt-[100px] text-center shadow-lg overflow-hidden">
             
@@ -81,8 +81,8 @@ const Splash = () => {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-6">
-          <div className="flex items-end gap-4">
+        <div className="mt-10 w-full flex-1 flex flex-col items-center">
+          <div className={`flex items-end gap-4 ${isVisionOpen ? "mt-0" : "mt-auto"}`}>
             <img src={treeOne} alt="לתרום" className="h-[127px] w-auto" />
             <img src={treeTwo} alt="זיהוי עץ" className="h-[127px] w-auto" />
             <button
@@ -94,13 +94,16 @@ const Splash = () => {
               <img
                 src={isVisionOpen ? treeThreeSelected : treeThree}
                 alt="חזון"
-                className="h-[127px] w-auto transition-transform duration-300 group-hover:scale-105"
+                className={`h-[127px] w-auto transition-transform duration-300 group-hover:scale-105 ${isVisionOpen ? "scale-105" : ""}`}
               />
             </button>
           </div>
 
-          {isVisionOpen && (
-            <section className="w-full max-w-[780px] rounded-[24px] bg-[#4C4040] px-6 py-8 text-white shadow-lg">
+          <div
+            className={`w-full overflow-hidden transition-all duration-500 ease-out ${isVisionOpen ? "flex-1 max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}
+            aria-hidden={!isVisionOpen}
+          >
+            <section className="mt-6 w-full min-h-full rounded-t-[24px] bg-[#4C4040] px-6 py-10 text-white shadow-lg">
               <h2 className="text-center text-[32px] font-bold text-[#CAA241]">
                 החזון שלנו
               </h2>
@@ -125,7 +128,7 @@ const Splash = () => {
                 </p>
               </div>
             </section>
-          )}
+          </div>
         </div>
       </main>
 
