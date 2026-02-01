@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SplashTreePanel } from "@/components/SplashTreePanel";
 import logo from "@/assets/tu-bishvat-logo.webp";
 import treeOne from "@/assets/donate.svg";
 import treeTwo from "@/assets/tree-identification.svg";
@@ -99,36 +100,31 @@ const Splash = () => {
             </button>
           </div>
 
-          <div
-            className={`w-full overflow-hidden transition-all duration-1000 ease-out ${isVisionOpen ? "flex-1 max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}
-            aria-hidden={!isVisionOpen}
-          >
-            <section className="-mt-2 w-full min-h-full bg-[#4C4040] px-6 py-10 text-white shadow-lg">
-              <h2 className="text-center text-[30px] font-bold leading-[36px] text-[#CAA241]">
-                החָזוֹן שלנו
-              </h2>
-              <p className="mt-2 text-center text-[18px] font-bold leading-[26px]">
-                העצים הם התשתית הירוקה של העיר
+          <SplashTreePanel isOpen={isVisionOpen}>
+            <h2 className="text-center text-[30px] font-bold leading-[36px] text-[#CAA241]">
+              החָזוֹן שלנו
+            </h2>
+            <p className="mt-2 text-center text-[18px] font-bold leading-[26px]">
+              העצים הם התשתית הירוקה של העיר
+            </p>
+            <div className="pl-0 text-[12px] leading-[20px]">
+              <p className="mt-6">
+                החלום הירוק שלנו הוא שלכל עץ יהיה מספר, ימופה וינוהל ממש כמו
+                שמנהלים עמודי תאורה או כל תשתיות אחרת.
               </p>
-              <div className="pl-0 text-[12px] leading-[20px]">
-                <p className="mt-6">
-                  החלום הירוק שלנו הוא שלכל עץ יהיה מספר, ימופה וינוהל ממש כמו
-                  שמנהלים עמודי תאורה או כל תשתיות אחרת.
-                </p>
-                <p className="mt-4 space-y-0">
-                  כל עץ ביער העירוני שלנו הוא חלק בלתי נפרד מהתשתית העירונית. אך
-                  בניגוד לבטון ומתכת, &quot;התשתית הירוקה&quot; היא חיה, צומחת
-                  ומורכבת לניהול - וזה בדיוק המקום שבו אתם נכנסים לתמונה.
-                </p>
-                <p className="mt-0 space-y-0">
-                  אנחנו מאמינים שמידע על הטבע העירוני שייך לכולם. כשהמידע נגיש
-                  ושקוף, כל אזרח ואזרחית הופכים לשותפים עוצמתיים בשמירה על
-                  הריאות הירוקות שלנו. יחד, נעזור לרשויות למפות, לעדכן ולטפח את
-                  היער העירוני - לטובת כולנו.
-                </p>
-              </div>
-            </section>
-          </div>
+              <p className="mt-4 space-y-0">
+                כל עץ ביער העירוני שלנו הוא חלק בלתי נפרד מהתשתית העירונית. אך
+                בניגוד לבטון ומתכת, &quot;התשתית הירוקה&quot; היא חיה, צומחת
+                ומורכבת לניהול - וזה בדיוק המקום שבו אתם נכנסים לתמונה.
+              </p>
+              <p className="mt-0 space-y-0">
+                אנחנו מאמינים שמידע על הטבע העירוני שייך לכולם. כשהמידע נגיש
+                ושקוף, כל אזרח ואזרחית הופכים לשותפים עוצמתיים בשמירה על
+                הריאות הירוקות שלנו. יחד, נעזור לרשויות למפות, לעדכן ולטפח את
+                היער העירוני - לטובת כולנו.
+              </p>
+            </div>
+          </SplashTreePanel>
         </div>
       </main>
 
