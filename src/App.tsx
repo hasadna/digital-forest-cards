@@ -20,7 +20,7 @@ const App = () => (
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path="/" element={<Splash />} />
-          <Route path="/app" element={<Index />} />
+          <Route path="/tree" element={<Index />} />
           <Route path="/review" element={<ReviewDashboard />} />
           <Route path="/usage-policy" element={<UsagePolicy />} />
           <Route path="/accessibility" element={<Accessibility />} />

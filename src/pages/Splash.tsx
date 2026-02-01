@@ -19,7 +19,7 @@ const Splash = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchValue.trim()) {
-      navigate("/app", { 
+      navigate("/tree", { 
         state: { 
           initialSearchValue: searchValue.trim(),
           initialSearchType: searchValue.includes("+") ? "tree-id" : "internal-id"
@@ -53,7 +53,7 @@ const Splash = () => {
               </h1>
               <div className="mt-10 text-[16px] font-medium leading-[28px]">
                 <p>מקלידים מספר עץ עירוני</p>
-                <p>רואים מידע שהעירייה שיתפה</p>
+                <p className="text-[#354F3D]">רואים מידע שהעירייה שיתפה</p>
                 <p>ומתעדים בעזרת תמונה עדכנית משלכם</p>
               </div>
             </div>

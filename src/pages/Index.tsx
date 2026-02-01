@@ -15,11 +15,28 @@ import { Button } from "@/components/ui/button";
 const Index = () => {
   const location = useLocation();
   const state = location.state as { initialSearchValue?: string; initialSearchType?: "tree-id" | "internal-id" } | null;
+  const getUrlTreeId = (search: string) => {
+    const params = new URLSearchParams(search);
+    return params.get("treeId") ?? params.get("id") ?? "";
+  };
+  const initialUrlTreeId = getUrlTreeId(location.search);
 
-  const [searchValue, setSearchValue] = useState(state?.initialSearchValue || "8G4P4VXP+GR5V");
-  const [searchType, setSearchType] = useState<"tree-id" | "internal-id">(state?.initialSearchType || "tree-id");
+  const [searchValue, setSearchValue] = useState(initialUrlTreeId || state?.initialSearchValue || "8G4P4VXP+GR5V");
+  const [searchType, setSearchType] = useState<"tree-id" | "internal-id">(
+    initialUrlTreeId ? "tree-id" : state?.initialSearchType || "tree-id",
+  );
   const [selectedTreeId, setSelectedTreeId] = useState<string | null>(null);
   const [finalTreeId, setFinalTreeId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const urlTreeId = getUrlTreeId(location.search);
+    if (!urlTreeId) return;
+    if (urlTreeId === searchValue && searchType === "tree-id") return;
+    setSearchValue(urlTreeId);
+    setSearchType("tree-id");
+    setSelectedTreeId(null);
+    setFinalTreeId(null);
+  }, [location.search]);
 
   // First query: Fetch initial search results (by tree-id or internal-id)
   const { data: initialData, isLoading: isLoadingInitial, error: errorInitial } = useQuery({

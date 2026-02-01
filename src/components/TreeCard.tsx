@@ -34,7 +34,14 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
     : data.species
       ? `https://www.treecatalog.org.il/tree/${encodeURIComponent(data.species)}`
       : undefined;
-  const shareUrl = typeof window !== "undefined" ? window.location.href : undefined;
+  const shareUrl =
+    typeof window !== "undefined"
+      ? (() => {
+          const url = new URL(window.location.href);
+          url.searchParams.set("treeId", data.id);
+          return url.toString();
+        })()
+      : undefined;
 
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -54,7 +61,6 @@ export const TreeCard = ({ data, media = [], mediaLoading = false, onUploadCompl
   const handleShare = async () => {
     const payload = {
       title: data.species ? `כרטיס עץ: ${data.species}` : "כרטיס עץ דיגיטלי",
-      text: municipalId ? `מזהה רשות: ${municipalId}` : `מזעץ: ${data.id}`,
       url: shareUrl,
     };
 
