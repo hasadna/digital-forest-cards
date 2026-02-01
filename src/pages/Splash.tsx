@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { SplashTreePanel } from "@/components/SplashTreePanel";
 import logo from "@/assets/tu-bishvat-logo.webp";
 import treeOne from "@/assets/donate.svg";
+import treeOneSelected from "@/assets/donate-selected.svg";
 import treeTwo from "@/assets/tree-identification.svg";
 import treeThree from "@/assets/vision.svg";
 import treeThreeSelected from "@/assets/vision-selected.svg";
@@ -13,6 +14,7 @@ const Splash = () => {
   const [searchValue, setSearchValue] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
   const [isVisionOpen, setIsVisionOpen] = useState(false);
+  const [isDonateOpen, setIsDonateOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,6 +32,28 @@ const Splash = () => {
       });
     }
   };
+
+  const handleDonateToggle = () => {
+    setIsDonateOpen((current) => {
+      const next = !current;
+      if (next) {
+        setIsVisionOpen(false);
+      }
+      return next;
+    });
+  };
+
+  const handleVisionToggle = () => {
+    setIsVisionOpen((current) => {
+      const next = !current;
+      if (next) {
+        setIsDonateOpen(false);
+      }
+      return next;
+    });
+  };
+
+  const isPanelOpen = isVisionOpen || isDonateOpen;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F2F8FF]" dir="rtl">
@@ -83,12 +107,23 @@ const Splash = () => {
         </div>
 
         <div className="mt-10 w-full flex-1 flex flex-col items-center">
-          <div className={`relative z-10 flex items-end gap-4 px-4 ${isVisionOpen ? "mt-0" : "mt-auto"}`}>
-            <img src={treeOne} alt="לתרום" className="h-[127px] w-auto" />
+          <div className={`relative z-10 flex items-end gap-4 px-4 ${isPanelOpen ? "mt-0" : "mt-auto"}`}>
+            <button
+              type="button"
+              onClick={handleDonateToggle}
+              className="group"
+              aria-pressed={isDonateOpen}
+            >
+              <img
+                src={isDonateOpen ? treeOneSelected : treeOne}
+                alt="לתרום"
+                className={`h-[127px] w-auto transition-transform duration-800 group-hover:scale-105 ${isDonateOpen ? "scale-105" : ""}`}
+              />
+            </button>
             <img src={treeTwo} alt="זיהוי עץ" className="h-[127px] w-auto" />
             <button
               type="button"
-              onClick={() => setIsVisionOpen((current) => !current)}
+              onClick={handleVisionToggle}
               className="group"
               aria-pressed={isVisionOpen}
             >
@@ -99,6 +134,46 @@ const Splash = () => {
               />
             </button>
           </div>
+
+          <SplashTreePanel
+            isOpen={isDonateOpen}
+            className="bg-[#493F3F] px-[42px] pt-[30px] pb-[24px]"
+          >
+            <h2 className="text-center text-[30px] font-bold leading-[36px] text-[#CAA241]">
+              לתרום
+            </h2>
+            <p className="mt-3 text-center text-[16px] leading-[26px] text-white">
+              תרמו לנו. כך נוכל להמשיך ולפתוח מידע ציבורי ולהפוך אתכם לשותפים
+              למיפוי היער העירוני.
+            </p>
+            <div className="mt-6 flex justify-center">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center rounded-[14px] bg-[#CAA241] px-12 py-3 text-[18px] font-bold text-white"
+              >
+                לתרומה
+              </button>
+            </div>
+            <div className="mt-6 text-center text-[14px] leading-[24px] text-white">
+              <p>
+                עלינו.{" "}
+                <span className="underline">הסדנא לידע ציבורי</span> היא ארגון
+                ללא מטרת רווח. אנו פועלים לפתיחת מידע ציבורי והנגשתו בעזרת
+                מתנדבים ואנשי קוד פתוח משנת 2011.
+              </p>
+              <p className="mt-4">
+                אנחנו פועלים לקידום היער העירוני באמצעות נתונים. פרויקט המזעץ
+                נולד מתוך פרויקט יער עירוני דיגיטלי בו יצרנו תשתית נתונים ארצית
+                ליער העירוני עם מאות אלפי עצים מזוהים ועוד למעלה מ-2.5 מיליון
+                עצים נוספים.
+              </p>
+              <p className="mt-4">
+                <span className="underline">קטלוג עצי רחוב וצל</span> הוא פרויקט
+                נוסף בו אספנו והנגשנו מידע ציבורי אודות מיני עצים.
+              </p>
+              <p className="mt-4 font-bold">תודה!</p>
+            </div>
+          </SplashTreePanel>
 
           <SplashTreePanel isOpen={isVisionOpen}>
             <h2 className="text-center text-[30px] font-bold leading-[36px] text-[#CAA241]">
